@@ -64,3 +64,5 @@ enc = OrdinalEncoder()
 df[["url_len_q","fld_len_q"]] = enc.fit_transform(df[["url_len_q","fld_len_q"]])
 
 print(df.head())
+
+df.to_csv('data/url_processed.csv', index=False)
