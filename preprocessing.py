@@ -45,3 +45,18 @@ for c in ".@-%?=":
 
 df['count_dirs'] = df['url_path'].apply(lambda x: count_dir_in_url_path(x))
 df['first_dir_len'] = df['url_path'].apply(lambda x: get_first_dir_len(x))
+
+# Binary Label
+df['binary_label'] = df['type'].apply(lambda x: 0 if x == 'benign' else 1)
+
+# Binned Features
+groups = ['Short', 'Medium', 'Long', 'Very Long']
+# URL Lengths in 4 bins
+df['url_len_q'] = pd.qcut(df['url_len'], q=4, labels=groups)
+# FLD Lengths in 4 bins
+df['fld_len_q'] = pd.qcut(df['fld_len'], q=4, labels=groups)
+
+# Percentage Features
+df['pc_alphas'] = df['url_alphas'] / df['url_len'] 
+df['pc_digits'] = df['url_digits'] / df['url_len']
+df['pc_puncs'] = df['url_puncs'] / df['url_len']
