@@ -52,7 +52,7 @@ print(X_train.shape, X_valid.shape, X_test.shape)
 
 print(X_train.head())
 
-"""## Implement the Logistic Regression model"""
+## Implement the Logistic Regression model
 
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
@@ -228,3 +228,44 @@ class LogisticRegression:
         grad_b = np.mean(y_pred - y)
         grad_W = X.T @ (y_pred - y) / len(y)
         return grad_b, grad_W
+
+"""
+model_sgd = LogisticRegression(initializer='normal')
+history_sgd = model_sgd.fit(X_train, y_train,
+                            X_valid, y_valid,
+                            epochs=500,
+                            batch_size=1,
+                            learning_rate=1e-3)
+
+"""
+
+### Train the logistic regression model with batch size = 64
+
+model_mini_batch = LogisticRegression(initializer='normal')
+history_mini_batch = model_mini_batch.fit(X_train, y_train,
+                                          X_valid, y_valid,
+                                          epochs=500,
+                                          batch_size=64,
+                                          learning_rate=1e-3)
+
+
+### Train the logistic regression model with batch size = dataset size
+
+model_full_batch = LogisticRegression(initializer='normal')
+history_full_batch = model_full_batch.fit(X_train, y_train,
+                                          X_valid, y_valid,
+                                          epochs=500,
+                                          batch_size=None,
+                                          learning_rate=1e-3)
+
+x = list(range(500 + 1))
+
+plt.figure(figsize=(18, 12))
+plt.title('Batch Size Comparison')
+plt.xlabel('Epochs')
+plt.ylabel('Validation accuracy')
+#plt.plot(x, history_sgd, label='Batch size = 1')
+plt.plot(x, history_mini_batch, label='Batch size = 64')
+plt.plot(x, history_full_batch, label=f'Batch size = {n}')
+plt.legend()
+plt.show()
