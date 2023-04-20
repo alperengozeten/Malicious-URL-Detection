@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 
 from utils import is_url_ip_address, process_url_with_tld, get_url_path, contains_shortening_service, count_dir_in_url_path, alpha_count, digit_count, get_first_dir_len
 from tld import get_tld
-#from sklearn.model_selection import train_test_split
-#from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-#from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.preprocessing import OrdinalEncoder
 
 df = pd.read_csv("data/malicious_phish.csv")
 
@@ -21,8 +22,6 @@ print(df['is_ip'].value_counts())
 print(df['url'][1])
 
 df[['subdomain', 'domain', 'tld', 'fld']] = df.apply(lambda x: process_url_with_tld(x), axis=1, result_type="expand")
-
-print(df.head())
 
 # General Features
 df['url_path'] = df['url'].apply(lambda x: get_url_path(x))
@@ -60,3 +59,8 @@ df['fld_len_q'] = pd.qcut(df['fld_len'], q=4, labels=groups)
 df['pc_alphas'] = df['url_alphas'] / df['url_len'] 
 df['pc_digits'] = df['url_digits'] / df['url_len']
 df['pc_puncs'] = df['url_puncs'] / df['url_len']
+
+enc = OrdinalEncoder()
+df[["url_len_q","fld_len_q"]] = enc.fit_transform(df[["url_len_q","fld_len_q"]])
+
+print(df.head())
