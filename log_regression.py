@@ -242,9 +242,15 @@ history_sgd = model_sgd.fit(X_train, y_train,
 ### Train the logistic regression model with batch size = 64
 
 model_mini_batch = LogisticRegression(initializer='normal')
-history_mini_batch = model_mini_batch.fit(X_train, y_train,
+history_batch_32 = model_mini_batch.fit(X_train, y_train,
                                           X_valid, y_valid,
-                                          epochs=500,
+                                          epochs=100,
+                                          batch_size=32,
+                                          learning_rate=1e-3)
+
+history_batch_64 = model_mini_batch.fit(X_train, y_train,
+                                          X_valid, y_valid,
+                                          epochs=100,
                                           batch_size=64,
                                           learning_rate=1e-3)
 
@@ -252,20 +258,29 @@ history_mini_batch = model_mini_batch.fit(X_train, y_train,
 ### Train the logistic regression model with batch size = dataset size
 
 model_full_batch = LogisticRegression(initializer='normal')
-history_full_batch = model_full_batch.fit(X_train, y_train,
+history_batch_128 = model_full_batch.fit(X_train, y_train,
                                           X_valid, y_valid,
-                                          epochs=500,
-                                          batch_size=None,
+                                          epochs=100,
+                                          batch_size=128,
                                           learning_rate=1e-3)
 
-x = list(range(500 + 1))
+model_full_batch = LogisticRegression(initializer='normal')
+history_batch_256 = model_full_batch.fit(X_train, y_train,
+                                          X_valid, y_valid,
+                                          epochs=100,
+                                          batch_size=256,
+                                          learning_rate=1e-3)
+
+x = list(range(100 + 1))
 
 plt.figure(figsize=(18, 12))
 plt.title('Batch Size Comparison')
 plt.xlabel('Epochs')
 plt.ylabel('Validation accuracy')
 #plt.plot(x, history_sgd, label='Batch size = 1')
-plt.plot(x, history_mini_batch, label='Batch size = 64')
-plt.plot(x, history_full_batch, label=f'Batch size = {n}')
+plt.plot(x, history_batch_32, label='Batch size = 32')
+plt.plot(x, history_batch_64, label='Batch size = 64')
+plt.plot(x, history_batch_128, label='Batch size = 128')
+plt.plot(x, history_batch_256, label='Batch size = 256')
 plt.legend()
 plt.show()
