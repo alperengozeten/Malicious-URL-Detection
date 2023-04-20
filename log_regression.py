@@ -241,46 +241,74 @@ history_sgd = model_sgd.fit(X_train, y_train,
 
 ### Train the logistic regression model with batch size = 64
 
-model_mini_batch = LogisticRegression(initializer='normal')
-history_batch_32 = model_mini_batch.fit(X_train, y_train,
-                                          X_valid, y_valid,
-                                          epochs=100,
-                                          batch_size=32,
-                                          learning_rate=1e-3)
+acc_batch_normal = []
+acc_batch_uniform = []
+acc_batch_zeros = []
+def logistic_reg_trainer(initializer, batch_size):
+    model = LogisticRegression(initializer)
+    acc = model.fit(X_train, y_train,
+                    X_valid, y_valid,
+                    epochs=100,
+                    batch_size=batch_size,
+                    learning_rate=1e-3)
+    if initializer == 'normal' : acc_batch_normal.append(acc)
+    if initializer == 'uniform' : acc_batch_uniform.append(acc)
+    if initializer == 'zeros' : acc_batch_zeros.append(acc)
 
-history_batch_64 = model_mini_batch.fit(X_train, y_train,
-                                          X_valid, y_valid,
-                                          epochs=100,
-                                          batch_size=64,
-                                          learning_rate=1e-3)
 
+fig, axs = plt.subplots(2, 2, figsize=(18, 12))
+axs[1, 1].remove()
 
-### Train the logistic regression model with batch size = dataset size
-
-model_full_batch = LogisticRegression(initializer='normal')
-history_batch_128 = model_full_batch.fit(X_train, y_train,
-                                          X_valid, y_valid,
-                                          epochs=100,
-                                          batch_size=128,
-                                          learning_rate=1e-3)
-
-model_full_batch = LogisticRegression(initializer='normal')
-history_batch_256 = model_full_batch.fit(X_train, y_train,
-                                          X_valid, y_valid,
-                                          epochs=100,
-                                          batch_size=256,
-                                          learning_rate=1e-3)
-
+# weights initialized NORMAL dist with different batches
+logistic_reg_trainer('normal', 32)
+logistic_reg_trainer('normal', 64)
+logistic_reg_trainer('normal', 128)
+logistic_reg_trainer('normal', 256) 
+# plot normal
 x = list(range(100 + 1))
+#plt.figure(figsize=(18, 12))
+axs[0,0].set_title('Batch Size Comparison for Normal initializer')
+axs[0,0].set_xlabel('Epochs')
+axs[0,0].set_ylabel('Validation accuracy')
+axs[0,0].plot(x, acc_batch_normal[0], label='Batch size = 32')
+axs[0,0].plot(x, acc_batch_normal[1], label='Batch size = 64')
+axs[0,0].plot(x, acc_batch_normal[2], label='Batch size = 128')
+axs[0,0].plot(x, acc_batch_normal[3], label='Batch size = 256')
+axs[0,0].legend()
 
-plt.figure(figsize=(18, 12))
-plt.title('Batch Size Comparison')
-plt.xlabel('Epochs')
-plt.ylabel('Validation accuracy')
-#plt.plot(x, history_sgd, label='Batch size = 1')
-plt.plot(x, history_batch_32, label='Batch size = 32')
-plt.plot(x, history_batch_64, label='Batch size = 64')
-plt.plot(x, history_batch_128, label='Batch size = 128')
-plt.plot(x, history_batch_256, label='Batch size = 256')
-plt.legend()
+# weights initialized UNIFORM dist with different batches
+logistic_reg_trainer('uniform', 32)
+logistic_reg_trainer('uniform', 64)
+logistic_reg_trainer('uniform', 128)
+logistic_reg_trainer('uniform', 256)
+# plot uniform
+#plt.figure(figsize=(18, 12))
+axs[0,1].set_title('Batch Size Comparison for Uniform initializer')
+axs[0,1].set_xlabel('Epochs')
+axs[0,1].set_ylabel('Validation accuracy')
+axs[0,1].plot(x, acc_batch_uniform[0], label='Batch size = 32')
+axs[0,1].plot(x, acc_batch_uniform[1], label='Batch size = 64')
+axs[0,1].plot(x, acc_batch_uniform[2], label='Batch size = 128')
+axs[0,1].plot(x, acc_batch_uniform[3], label='Batch size = 256')
+axs[0,1].legend()
+
+# weights initialized ZEROS with different batches
+logistic_reg_trainer('zeros', 32)
+logistic_reg_trainer('zeros', 64)
+logistic_reg_trainer('zeros', 128)
+logistic_reg_trainer('zeros', 256)
+# plot zeros
+#plt.figure(figsize=(18, 12))
+axs[1, 0].set_title('Batch Size Comparison for Zeros initializer')
+axs[1, 0].set_xlabel('Epochs')
+axs[1, 0].set_ylabel('Validation accuracy')
+axs[1, 0].plot(x, acc_batch_zeros[0], label='Batch size = 32')
+axs[1, 0].plot(x, acc_batch_zeros[1], label='Batch size = 64')
+axs[1, 0].plot(x, acc_batch_zeros[2], label='Batch size = 128')
+axs[1, 0].plot(x, acc_batch_zeros[3], label='Batch size = 256')
+axs[1, 0].legend()
+
+lines, labels = axs[0, 0].get_legend_handles_labels()
+fig.legend(lines, labels, loc='lower center', ncol=3)
+plt.subplots_adjust(wspace=0.2, hspace=0.5)
 plt.show()
