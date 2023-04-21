@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 from typing import Literal, Tuple
@@ -308,7 +307,5 @@ axs[1, 0].plot(x, acc_batch_zeros[2], label='Batch size = 128')
 axs[1, 0].plot(x, acc_batch_zeros[3], label='Batch size = 256')
 axs[1, 0].legend()
 
-lines, labels = axs[0, 0].get_legend_handles_labels()
-fig.legend(lines, labels, loc='lower center', ncol=3)
 plt.subplots_adjust(wspace=0.2, hspace=0.5)
 plt.show()
