@@ -10,7 +10,7 @@ X = df[['is_ip', 'url_len', 'subdomain_len', 'tld_len', 'fld_len', 'url_path_len
        'url_alphas', 'url_digits', 'url_puncs', 'count.', 'count@', 'count-',
        'count%', 'count?', 'count=', 'count_dirs',
        'contains_shortener', 'first_dir_len',
-       'url_len_q', 'fld_len_q']]
+       'url_len_q', 'fld_len_q', 'https']]
 
 print(X.head())
 
@@ -88,6 +88,40 @@ with np.errstate(divide='ignore'):
 
 logSpamProbabilities[np.isneginf(logSpamProbabilities)]= -1e+12
 logNormalProbabilities[np.isneginf(logNormalProbabilities)]= -1e+12
+
+num_correct = tp = tn = fp = fn = 0
+for i in range(x_test.shape[0]):
+    row = x_test[i]
+    probSpam = np.log(p_spam)
+    probNormal = np.log(p_normal)
+    
+    """
+    for j in range(row.shape[0]):
+        probSpam += (logSpamProbabilities[0, j] * row[j])
+        probNormal += (logNormalProbabilities[0, j] * row[j])
+    """
+    probSpam += (logSpamProbabilities @ row)
+    probNormal += (logNormalProbabilities @ row)
+
+    predicted = 0
+    if probSpam > probNormal:
+        predicted = 1
+    
+    if predicted == y_test[i]:
+        num_correct += 1
+        if predicted == 1:
+            tp += 1
+        else:
+            tn += 1
+    else:
+        if predicted == 1:
+            fp += 1
+        else:
+            fn += 1
+print("--------------- Multinomial Model ---------------")
+print("The number of correct predictions: " + str(num_correct) + ", wrong predictions: " + str(x_test.shape[0] - num_correct) + ", accuracy: " + str(num_correct / x_test.shape[0]))
+print("The number of true positives: " + str(tp) + ", true negatives: " + str(tn))
+print("The number of false positives: " + str(fp) + ", false negatives: " + str(fn))
 
 # create a copy of the train and test datasets
 bernoulli_x_train = np.copy(x_train)

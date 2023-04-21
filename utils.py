@@ -3,6 +3,7 @@ import pandas as pd
 
 from tld import get_tld
 from typing import Tuple, Union
+from urllib.parse import urlparse
 
 def is_url_ip_address(url: str) -> bool:
     match = re.search(
@@ -141,4 +142,14 @@ def contains_shortening_service(url: str) -> int:
     if match:
         return 1
     else:
+        return 0
+
+def httpSecure(url):
+    htp = urlparse(url).scheme
+    match = str(htp)
+    if match=='https':
+        # print match.group()
+        return 1
+    else:
+        # print 'No matching pattern found'
         return 0

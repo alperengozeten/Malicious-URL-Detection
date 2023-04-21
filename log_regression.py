@@ -17,7 +17,7 @@ X = df[['is_ip', 'url_len', 'subdomain_len', 'tld_len', 'fld_len', 'url_path_len
        'count%', 'count?', 'count=',
        'pc_alphas', 'pc_digits', 'pc_puncs', 'count_dirs',
        'contains_shortener', 'first_dir_len',
-       'url_len_q', 'fld_len_q']]
+       'url_len_q', 'fld_len_q', 'https']]
 
 print(X.head())
 
@@ -247,7 +247,7 @@ def logistic_reg_trainer(initializer, batch_size):
     model = LogisticRegression(initializer)
     acc = model.fit(X_train, y_train,
                     X_valid, y_valid,
-                    epochs=100,
+                    epochs=20,
                     batch_size=batch_size,
                     learning_rate=1e-3)
     if initializer == 'normal' : acc_batch_normal.append(acc)
@@ -264,7 +264,7 @@ logistic_reg_trainer('normal', 64)
 logistic_reg_trainer('normal', 128)
 logistic_reg_trainer('normal', 256) 
 # plot normal
-x = list(range(100 + 1))
+x = list(range(20 + 1))
 #plt.figure(figsize=(18, 12))
 axs[0,0].set_title('Batch Size Comparison for Normal initializer')
 axs[0,0].set_xlabel('Epochs')

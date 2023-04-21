@@ -3,7 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from utils import is_url_ip_address, process_url_with_tld, get_url_path, contains_shortening_service, count_dir_in_url_path, alpha_count, digit_count, get_first_dir_len
+from utils import is_url_ip_address, process_url_with_tld, get_url_path, contains_shortening_service, count_dir_in_url_path, alpha_count, digit_count, get_first_dir_len, httpSecure
 from tld import get_tld
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
@@ -62,6 +62,8 @@ df['pc_puncs'] = df['url_puncs'] / df['url_len']
 
 enc = OrdinalEncoder()
 df[["url_len_q","fld_len_q"]] = enc.fit_transform(df[["url_len_q","fld_len_q"]])
+
+df['https'] = df['url'].apply(lambda i: httpSecure(i))
 
 print(df.head())
 
