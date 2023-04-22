@@ -51,6 +51,23 @@ print(X_train.shape, X_valid.shape, X_test.shape)
 
 print(X_train.head())
 
+'''from sklearn.neighbors import KNeighborsClassifier
+#neigh = KNeighborsClassifier(n_neighbors=5)         # accuracy: 0.950
+#neigh = KNeighborsClassifier(n_neighbors=20)        # accuracy: 0.947
+#neigh = KNeighborsClassifier(n_neighbors=50)        # accuracy: 0.936
+neigh.fit(X_train, y_train)
+y_pred = neigh.predict(X_test)
+from sklearn.metrics import accuracy_score
+print('knn accuracy: {0:0.4f}'. format(accuracy_score(y_test, y_pred))) '''
+
+'''from sklearn import svm
+clf = svm.SVC()
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
+from sklearn.metrics import accuracy_score
+print('SVM accuracy: {0:0.4f}'. format(accuracy_score(y_test, y_pred))) '''
+
+
 ## Implement the Logistic Regression model
 
 def sigmoid(z):
