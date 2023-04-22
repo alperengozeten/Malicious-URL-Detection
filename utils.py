@@ -19,60 +19,48 @@ def is_url_ip_address(url: str) -> bool:
         return 1
     else:
         return 0
-    
-def process_tld(url: str, fix_protos: bool = False) -> Tuple[str, str, str, str]:
-    """
-    Takes a URL string and uses the tld library to extract subdomain, domain, top
-    level domain and full length domain
-    """
-    res = get_tld(url, as_object = True, fail_silently=False, fix_protocol=fix_protos)
 
-    subdomain = res.subdomain
-    domain = res.domain
-    tld = res.tld
+""" returns full length domain (fld), top level domain (tld), domain, and
+subdomain names for a given URL. These can be useful as features """  
+def extract_tld(url: str, fix_protos: bool = False) -> Tuple[str, str, str, str]:
+
+    res = get_tld(url, as_object = True, fail_silently=False, fix_protocol=fix_protos)
     fld = res.fld
-        
+    tld = res.tld
+    domain = res.domain
+    subdomain = res.subdomain
+         
     return subdomain, domain, tld, fld
 
-def process_url_with_tld(row: pd.Series) -> Tuple[str, str, str, str]:
-    """
-    Takes in a dataframe row, checks to see if rows `is_ip` column is
-    False. If it is false, continues to process the URL and extract the 
-    features, otherwise sets four features to None before returning.
+"""" takes an instance and checks if the url is an IP address. If yes, 
+set four instances to None. If not, call extract_tld to process URL"""
+def process_url(row: pd.Series) -> Tuple[str, str, str, str]:
     
-    This processing is wrapped in a try/except block to enable debugging
-    and it prints out the inputs that caused a failure as well as a 
-    failure counter.
-    """
+    """ in case processing fails, print failed instances and the count """
+ 
     try:
         if row['is_ip'] == 0:
             if str(row['url']).startswith('http:'):
-                return process_tld(row['url'])
+                return extract_tld(row['url'])
             else:
-                return process_tld(row['url'], fix_protos=True)
+                return extract_tld(row['url'], fix_protos=True)
         else:
-            subdomain = None
-            domain = None
-            tld = None
             fld = None
-            return subdomain, domain, tld, fld
+            tld = None
+            domain = None
+            subdomain = None
+            return fld, tld, domain, subdomain
     except:
-        idx = row.name
+        index = row.name
         url = row['url']
         type = row['type']
-        print(f'Failed - {idx}: {url} is a {type} example')
+        print(f'Fail: {index}: {url} is a type of: {type}')
         return None, None, None, None
 
-def get_url_path(url: str) -> Union[str, None]:
-    """
-    Get's the path from a URL
-    
-    For example:
-    
-    If the URL was "www.google.co.uk/my/great/path"
-    
-    The path returned would be "my/great/path"
-    """
+""" returns the path of the url
+for example: www.bilkent.com/srs/cgpa -> srs/cgpa """
+def get_path(url: str) -> Union[str, None]:
+
     try:
         res = get_tld(url, as_object = True, fail_silently=False, fix_protocol=True)
         if res.parsed_url.query:
@@ -82,55 +70,48 @@ def get_url_path(url: str) -> Union[str, None]:
             return res.parsed_url.path
     except:
         return None
-    
+
+""" return alpha characters count """
 def alpha_count(url: str) -> int:
-    """
-    Counts the number of alpha characters in a URL
-    """
-    alpha = 0
-    for i in url:
-        if i.isalpha():
-            alpha += 1
-    return alpha
 
+    a_count = 0
+    for c in url:
+        if c.isalpha():
+            a_count += 1
+    return a_count
+
+""" return digits count """
 def digit_count(url: str) -> int:
-    """
-    Counts the number of digit characters in a URL
-    """
-    digits = 0
-    for i in url:
-        if i.isnumeric():
-            digits = digits + 1
-    return digits
 
-def count_dir_in_url_path(url_path: Union[str, None]) -> int:
-    """
-    Counts number of / in url path to count number of
-    sub directories
-    """
-    if url_path:
-        n_dirs = url_path.count('/')
-        return n_dirs
-    else:
-        return 0
+    d_count = 0
+    for d in url:
+        if d.isnumeric():
+            d_count += 1
+    return d_count
 
-def get_first_dir_len(url_path: Union[str, None]) -> int:
-    """
-    Counts the length of the first directory within
-    the URL provided
-    """
-    if url_path:
-        if len(url_path.split('/')) > 1:
-            first_dir_len = len(url_path.split('/')[1])
+""" return number of '/' and hence number of sub directories """
+def sub_dir_count(url: Union[str, None]) -> int:
+
+    if url:
+        dir_count = url.count('/')
+        return dir_count
+    else: return 0
+
+""" return length of the first directory """
+def len_first_dir(url: Union[str, None]) -> int:
+
+    if url:
+        if len(url.split('/')) > 1:
+            first_dir_len = len(url.split('/')[1])
             return first_dir_len
-    else:
-        return 0
-    
-def contains_shortening_service(url: str) -> int:
-    """
-    Checks to see whether URL contains a shortening service
-    """
-    match = re.search('bit\.ly|goo\.gl|shorte\.st|go2l\.ink|x\.co|ow\.ly|t\.co|tinyurl|tr\.im|is\.gd|cli\.gs|'
+    else: return 0
+
+""" check whether the URL has a shortening service or not
+Shortening Service: a third-party website that converts that long URL to a short, 
+case-sensitive alphanumeric code. Examples can be seen in the method below """   
+def check_shortening_service(url: str) -> int:
+
+    check = re.search('bit\.ly|goo\.gl|shorte\.st|go2l\.ink|x\.co|ow\.ly|t\.co|tinyurl|tr\.im|is\.gd|cli\.gs|'
                       'yfrog\.com|migre\.me|ff\.im|tiny\.cc|url4\.eu|twit\.ac|su\.pr|twurl\.nl|snipurl\.com|'
                       'short\.to|BudURL\.com|ping\.fm|post\.ly|Just\.as|bkite\.com|snipr\.com|fic\.kr|loopt\.us|'
                       'doiop\.com|short\.ie|kl\.am|wp\.me|rubyurl\.com|om\.ly|to\.ly|bit\.do|t\.co|lnkd\.in|'
@@ -139,17 +120,14 @@ def contains_shortening_service(url: str) -> int:
                       'x\.co|prettylinkpro\.com|scrnch\.me|filoops\.info|vzturl\.com|qr\.net|1url\.com|tweez\.me|v\.gd|'
                       'tr\.im|link\.zip\.net',
                       url)
-    if match:
-        return 1
-    else:
-        return 0
+    if check: return 1
+    else: return 0
 
-def httpSecure(url):
+""" check whether the URL starts with 'http' or 'https' """
+def check_http(url):
     htp = urlparse(url).scheme
-    match = str(htp)
-    if match=='https':
-        # print match.group()
+    check = str(htp)
+
+    if check == 'https':
         return 1
-    else:
-        # print 'No matching pattern found'
-        return 0
+    else: return 0
