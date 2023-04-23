@@ -60,6 +60,9 @@ enc = OrdinalEncoder()
 df[["url_len_q","fld_len_q"]] = enc.fit_transform(df[["url_len_q","fld_len_q"]])
 
 df['https'] = df['url'].apply(lambda i: check_http(i))
+df['count-https'] = df['url'].apply(lambda a: a.count('https'))
+df['count-http'] = df['url'].apply(lambda a: a.count('http'))
+df['count-www'] = df['url'].apply(lambda a: a.count('www'))
 
 print(df.head())
 
