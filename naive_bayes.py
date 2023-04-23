@@ -6,6 +6,7 @@ df = pd.read_csv("data/url_processed.csv")
 # shuffle the data frame
 df = df.sample(frac = 1)
 
+# pick only the numeric features
 X = df[['is_ip', 'url_len', 'subdomain_len', 'tld_len', 'fld_len', 'url_path_len',
        'url_alphas', 'url_digits', 'url_puncs', 'count.', 'count@', 'count-',
        'count%', 'count?', 'count=', 'count_dirs',
@@ -49,7 +50,6 @@ y_test = y.iloc[train_size + valid_size:]
 print(X_train.shape, X_valid.shape, X_test.shape)
 
 print(X_train.head())
-print(X_train.dtypes)
 
 # convert df into numpy
 x_train = X_train.to_numpy()
