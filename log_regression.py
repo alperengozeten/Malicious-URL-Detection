@@ -194,7 +194,7 @@ class LogisticRegression:
                 batch_indices = indices[batch * batch_size: (batch + 1) * batch_size]
                 X_batch = X[batch_indices]
                 y_batch = y[batch_indices]
-
+                # print(y_batch.shape)
                 grad_b, grad_W = self._calculate_gradients(X_batch, y_batch)
                 self._b -= learning_rate * grad_b
                 self._W -= learning_rate * grad_W
@@ -254,7 +254,7 @@ def logistic_reg_trainer(initializer, batch_size):
     if initializer == 'uniform' : acc_batch_uniform.append(acc)
     if initializer == 'zeros' : acc_batch_zeros.append(acc)
 
-
+'''
 fig, axs = plt.subplots(2, 2, figsize=(18, 12))
 axs[1, 1].remove()
 
@@ -312,3 +312,20 @@ plt.show()
 
 for i in range(1, 5):
     print('Final Validation accuracy for Normal Initialization With Batch Size: {%d} is : {%f}',32 * i, acc_batch_normal[i - 1][-1])
+'''
+
+
+
+model = LogisticRegression("uniform")
+
+
+X_train_new = np.concatenate((X_train, X_valid), axis=0)
+y_train_new = np.concatenate((y_train, y_valid), axis=0)
+print(X_train_new.shape)
+test_acc = model.fit(X_train_new, y_train_new,
+                    X_test, y_test,
+                    epochs=20,
+                    batch_size=64,
+                    learning_rate=1e-3)
+
+print(test_acc)
