@@ -157,7 +157,43 @@ for (parameter, acc) in zip(x, multinomial_acc_history):
 plt.legend()
 plt.show()
 
-#the best behaving multinomial model is one with smoothing = 0, report its accuracy again
+# The best behaving multinomial model is one with smoothing = 0, report its accuracy again
+# by training on the train + validation set 
+x_train = np.concatenate((x_train, x_valid), axis=0)
+y_train = np.concatenate((y_train, y_valid), axis=0)
+
+# calculate the spam and normal class probabilities
+spam_count = np.count_nonzero(y_train)
+normal_count = y_train.shape[0] - spam_count
+p_spam = spam_count / y_train.shape[0]
+p_normal = 1 - p_spam
+
+# print the spam percentage
+print("Spam percentage: " + str((p_spam)*100))
+
+# add the number of words for each email
+word_counts = np.sum(x_train, axis = 1)
+
+# Get the total word counts for categories
+spamWordCount = word_counts.T @ y_train
+normalWordCount = word_counts.T @ (1 - y_train)
+
+# Get the frequencies for each word seperately
+spamFrequencies = y_train.T @ x_train
+normalFrequencies = (1 - y_train.T) @ x_train 
+
+# Calculate the parameters by dividing with the total word count 
+spamProbabilities = spamFrequencies / spamWordCount
+normalProbabilities = normalFrequencies / normalWordCount
+
+# Take the log of the probabilities
+with np.errstate(divide='ignore'):
+    logSpamProbabilities = np.log(spamProbabilities)
+    logNormalProbabilities = np.log(normalProbabilities)
+
+logSpamProbabilities[np.isneginf(logSpamProbabilities)]= -1e+12
+logNormalProbabilities[np.isneginf(logNormalProbabilities)]= -1e+12
+
 num_correct = tp = tn = fp = fn = 0
 for i in range(x_test.shape[0]):
     row = x_test[i]
@@ -200,6 +236,10 @@ for i in range(2):
 plt.show
 print("acc:",accuracy_score(sonuc, pred))"""
 
+"""
+Bernoulli Model is trained on train + validation and its accuracy is reported
+on the test dataset since it doesn't have any parameters to tune
+"""
 # create a copy of the train and test datasets
 bernoulli_x_train = np.copy(x_train)
 bernoulli_x_test = np.copy(x_test)
