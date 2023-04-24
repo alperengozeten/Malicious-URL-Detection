@@ -308,7 +308,6 @@ for i in range(1, 5):
 
 model = LogisticRegression("uniform")
 
-
 X_train_new = np.concatenate((X_train, X_valid), axis=0)
 y_train_new = np.concatenate((y_train, y_valid), axis=0)
 final_test_acc = model.fit(X_train_new, y_train_new,
