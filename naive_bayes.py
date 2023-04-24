@@ -92,7 +92,7 @@ logSpamProbabilities[np.isneginf(logSpamProbabilities)]= -1e+12
 logNormalProbabilities[np.isneginf(logNormalProbabilities)]= -1e+12
 
 multinomial_acc_history = []
-def fit_smoothened_multinomial(alpha, spamFrequencies, normalFrequencies, x_train, y_test):
+def fit_smoothened_multinomial(alpha, spamFrequencies, normalFrequencies, x_train, x_test, y_test):
     regularizedSpamFrequencies = spamFrequencies + alpha
     regularizedNormalFrequencies = normalFrequencies + alpha
 
@@ -140,7 +140,7 @@ def fit_smoothened_multinomial(alpha, spamFrequencies, normalFrequencies, x_trai
 
 # apply smoothing and compare on the validation set to pick the best smoothing
 for i in range(0, 10, 2):
-    fit_smoothened_multinomial(i, spamFrequencies, normalFrequencies, x_train, y_test)
+    fit_smoothened_multinomial(i, spamFrequencies, normalFrequencies, x_train, x_valid, y_valid)
 
 #the best behaving multinomial model is one with smoothing = 0, report its accuracy again
 num_correct = tp = tn = fp = fn = 0
@@ -171,6 +171,19 @@ print("--------------- Multinomial Model ---------------")
 print("The number of correct predictions: " + str(num_correct) + ", wrong predictions: " + str(x_test.shape[0] - num_correct) + ", accuracy: " + str(num_correct / x_test.shape[0]))
 print("The number of true positives: " + str(tp) + ", true negatives: " + str(tn))
 print("The number of false positives: " + str(fp) + ", false negatives: " + str(fn))
+
+"""
+fig, ax = plt.subplots()
+ax.matshow(confusion,cmap='OrRd')
+
+ax.set(xlabel='Test', ylabel='Prediction')
+
+for i in range(2):
+  for j in range(2):
+    c = confusion[j][i]
+    ax.text(i, j, str(c), va='center', ha='center')
+plt.show
+print("acc:",accuracy_score(sonuc, pred))"""
 
 # create a copy of the train and test datasets
 bernoulli_x_train = np.copy(x_train)
