@@ -327,4 +327,26 @@ plt.legend()
 plt.title('Test Accuracy for the Logistic Regression Model')
 plt.show()
 
+y_preds = model.predict(X_test)
+confusion = pd.crosstab(y_test, y_preds)
+
+# Report the final test accuracy
 print('Final Test Accuracy: %f' % (final_test_acc[-1]))
+
+# print f1 score = 2 * precision * recall / (precision +  recall)
+precision = confusion[1][1] / (confusion[0][1] + confusion[1][1])
+recall = confusion[1][1] / (confusion[1][1] + confusion[1][0])
+f1_score = (2 * precision * recall) / (precision + recall)
+print("F1 Score For Final Logistic Regression Model: ", f1_score)
+
+# plot confusion matrix
+fig, ax = plt.subplots()
+ax.matshow(confusion,cmap='OrRd')
+ax.set(xlabel='Test', ylabel='Prediction')
+
+for i in range(2):
+  for j in range(2):
+    c = confusion[j][i]
+    ax.text(i, j, str(c), va='center', ha='center')
+plt.title('Confusion Matrix For Final Logistic Regression Model')
+plt.show()
