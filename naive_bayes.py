@@ -138,12 +138,62 @@ def fit_smoothened_multinomial(alpha, spamFrequencies, normalFrequencies, x_trai
     print("The number of correct predictions: " + str(num_correct) + ", wrong predictions: " + str(x_test.shape[0] - num_correct) + ", accuracy: " + str(num_correct / x_test.shape[0]))
     print("The number of true positives: " + str(tp) + ", true negatives: " + str(tn))
     print("The number of false positives: " + str(fp) + ", false negatives: " + str(fn))
+    multinomial_acc_history.append(num_correct / x_test.shape[0]) # add the accuracy to the history
 
 # apply smoothing and compare on the validation set to pick the best smoothing
 for i in range(0, 10, 2):
     fit_smoothened_multinomial(i, spamFrequencies, normalFrequencies, x_train, x_valid, y_valid)
 
-#the best behaving multinomial model is one with smoothing = 0, report its accuracy again
+# plotting the validation accuracy for different smoothing parameter values
+x = list(range(0, 10, 2))
+plt.figure(figsize=(18, 12))
+plt.title('Smoothing Parameter Comparison')
+plt.xlabel('Smoothing Parameter Alpha')
+plt.ylabel('Validation accuracy')
+plt.plot(x, multinomial_acc_history,  '-o', label='Multinomial Model')
+plt.yticks([x / 5 for x in range(0, 6)])
+for (parameter, acc) in zip(x, multinomial_acc_history):
+    plt.text(parameter, acc, "{:.6f}".format(acc), va='bottom', ha='center')
+plt.legend()
+plt.show()
+
+# The best behaving multinomial model is one with smoothing = 0, report its accuracy again
+# by training on the train + validation set 
+x_train = np.concatenate((x_train, x_valid), axis=0)
+y_train = np.concatenate((y_train, y_valid), axis=0)
+
+# calculate the spam and normal class probabilities
+spam_count = np.count_nonzero(y_train)
+normal_count = y_train.shape[0] - spam_count
+p_spam = spam_count / y_train.shape[0]
+p_normal = 1 - p_spam
+
+# print the spam percentage
+print("Spam percentage: " + str((p_spam)*100))
+
+# add the number of words for each email
+word_counts = np.sum(x_train, axis = 1)
+
+# Get the total word counts for categories
+spamWordCount = word_counts.T @ y_train
+normalWordCount = word_counts.T @ (1 - y_train)
+
+# Get the frequencies for each word seperately
+spamFrequencies = y_train.T @ x_train
+normalFrequencies = (1 - y_train.T) @ x_train 
+
+# Calculate the parameters by dividing with the total word count 
+spamProbabilities = spamFrequencies / spamWordCount
+normalProbabilities = normalFrequencies / normalWordCount
+
+# Take the log of the probabilities
+with np.errstate(divide='ignore'):
+    logSpamProbabilities = np.log(spamProbabilities)
+    logNormalProbabilities = np.log(normalProbabilities)
+
+logSpamProbabilities[np.isneginf(logSpamProbabilities)]= -1e+12
+logNormalProbabilities[np.isneginf(logNormalProbabilities)]= -1e+12
+
 num_correct = tp = tn = fp = fn = 0
 y_pred = []
 for i in range(x_test.shape[0]):
@@ -187,6 +237,10 @@ for i in range(2):
     ax.text(i, j, str(c), va='center', ha='center')
 plt.show()
 
+"""
+Bernoulli Model is trained on train + validation and its accuracy is reported
+on the test dataset since it doesn't have any parameters to tune
+"""
 # create a copy of the train and test datasets
 bernoulli_x_train = np.copy(x_train)
 bernoulli_x_test = np.copy(x_test)
