@@ -155,6 +155,7 @@ plt.yticks([x / 5 for x in range(0, 6)])
 for (parameter, acc) in zip(x, multinomial_acc_history):
     plt.text(parameter, acc, "{:.6f}".format(acc), va='bottom', ha='center')
 plt.legend()
+plt.title('Validation Accuracy For Multinomial Model')
 plt.show()
 
 # The best behaving multinomial model is one with smoothing = 0, report its accuracy again
@@ -236,6 +237,7 @@ for i in range(2):
     c = confusion[j][i]
     ax.text(i, j, str(c), va='center', ha='center')
 plt.show()
+plt.title('Confusion Matrix For Multinomial Model With Smoothing = 0')
 
 """
 Bernoulli Model is trained on train + validation and its accuracy is reported
@@ -313,4 +315,4 @@ for i in range(2):
     c = confusion[j][i]
     ax.text(i, j, str(c), va='center', ha='center')
 plt.show()
-# 
+plt.title('Confusion Matrix For Bernoulli Model')
