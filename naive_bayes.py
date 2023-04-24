@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("data/url_processed.csv")
 
@@ -137,10 +138,24 @@ def fit_smoothened_multinomial(alpha, spamFrequencies, normalFrequencies, x_trai
     print("The number of correct predictions: " + str(num_correct) + ", wrong predictions: " + str(x_test.shape[0] - num_correct) + ", accuracy: " + str(num_correct / x_test.shape[0]))
     print("The number of true positives: " + str(tp) + ", true negatives: " + str(tn))
     print("The number of false positives: " + str(fp) + ", false negatives: " + str(fn))
+    multinomial_acc_history.append(num_correct / x_test.shape[0]) # add the accuracy to the history
 
 # apply smoothing and compare on the validation set to pick the best smoothing
 for i in range(0, 10, 2):
     fit_smoothened_multinomial(i, spamFrequencies, normalFrequencies, x_train, x_valid, y_valid)
+
+# plotting the validation accuracy for different smoothing parameter values
+x = list(range(0, 10, 2))
+plt.figure(figsize=(18, 12))
+plt.title('Smoothing Parameter Comparison')
+plt.xlabel('Smoothing Parameter Alpha')
+plt.ylabel('Validation accuracy')
+plt.plot(x, multinomial_acc_history,  '-o', label='Multinomial Model')
+plt.yticks([x / 5 for x in range(0, 6)])
+for (parameter, acc) in zip(x, multinomial_acc_history):
+    plt.text(parameter, acc, "{:.6f}".format(acc), va='bottom', ha='center')
+plt.legend()
+plt.show()
 
 #the best behaving multinomial model is one with smoothing = 0, report its accuracy again
 num_correct = tp = tn = fp = fn = 0
