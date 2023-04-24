@@ -236,8 +236,14 @@ for i in range(2):
   for j in range(2):
     c = confusion[j][i]
     ax.text(i, j, str(c), va='center', ha='center')
-plt.show()
 plt.title('Confusion Matrix For Multinomial Model With Smoothing = 0')
+plt.show()
+
+# print f1 score = 2 * precision * recall / (precision +  recall)
+precision = tp / (fp + tp)
+recall = tp / (tp + fn)
+f1_score = (2 * precision * recall) / (precision + recall)
+print("f1 score for multinomial model with smoothing = 0: ", f1_score)
 
 """
 Bernoulli Model is trained on train + validation and its accuracy is reported
@@ -314,5 +320,11 @@ for i in range(2):
   for j in range(2):
     c = confusion[j][i]
     ax.text(i, j, str(c), va='center', ha='center')
-plt.show()
 plt.title('Confusion Matrix For Bernoulli Model')
+plt.show()
+
+# print f1 score = 2 * precision * recall / (precision +  recall)
+precision = tp / (fp + tp)
+recall = tp / (tp + fn)
+f1_score = (2 * precision * recall) / (precision + recall)
+print("f1 score for bernoulli model: ", f1_score)
