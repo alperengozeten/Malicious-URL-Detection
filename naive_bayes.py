@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 df = pd.read_csv("data/url_processed.csv")
 
@@ -144,6 +145,7 @@ for i in range(0, 10, 2):
 
 #the best behaving multinomial model is one with smoothing = 0, report its accuracy again
 num_correct = tp = tn = fp = fn = 0
+y_pred = []
 for i in range(x_test.shape[0]):
     row = x_test[i]
     probSpam = np.log(p_spam)
@@ -156,6 +158,7 @@ for i in range(x_test.shape[0]):
     if probSpam > probNormal:
         predicted = 1
     
+    y_pred.append(predicted)
     if predicted == y_test[i]:
         num_correct += 1
         if predicted == 1:
@@ -172,18 +175,17 @@ print("The number of correct predictions: " + str(num_correct) + ", wrong predic
 print("The number of true positives: " + str(tp) + ", true negatives: " + str(tn))
 print("The number of false positives: " + str(fp) + ", false negatives: " + str(fn))
 
-"""
+# plot confusion matrix
+confusion = pd.crosstab(y_test, y_pred)
 fig, ax = plt.subplots()
 ax.matshow(confusion,cmap='OrRd')
-
 ax.set(xlabel='Test', ylabel='Prediction')
 
 for i in range(2):
   for j in range(2):
     c = confusion[j][i]
     ax.text(i, j, str(c), va='center', ha='center')
-plt.show
-print("acc:",accuracy_score(sonuc, pred))"""
+plt.show()
 
 # create a copy of the train and test datasets
 bernoulli_x_train = np.copy(x_train)
@@ -201,6 +203,7 @@ bernoulliSpamProbabilities = bernoulliSpamFrequencies / spam_count
 bernoulliNormalProbabilities = bernoulliNormalFrequencies / normal_count
 
 num_correct = tp = tn = fp = fn = 0
+y_pred_berno = []
 for i in range(bernoulli_x_test.shape[0]):
     row = bernoulli_x_test[i]
     probSpam = np.log(p_spam)
@@ -228,6 +231,7 @@ for i in range(bernoulli_x_test.shape[0]):
     if probSpam > probNormal:
         predicted = 1
     
+    y_pred_berno.append(predicted)
     if predicted == y_test[i]:
         num_correct += 1
         if predicted == 1:
@@ -243,3 +247,15 @@ print("--------------- Bernoulli Model ---------------")
 print("The number of correct predictions: " + str(num_correct) + ", wrong predictions: " + str(x_test.shape[0] - num_correct) + ", accuracy: " + str(num_correct / x_test.shape[0]))
 print("The number of true positives: " + str(tp) + ", true negatives: " + str(tn))
 print("The number of false positives: " + str(fp) + ", false negatives: " + str(fn))
+
+# plot confusion matrix
+confusion = pd.crosstab(y_test, y_pred_berno)
+fig, ax = plt.subplots()
+ax.matshow(confusion,cmap='OrRd')
+ax.set(xlabel='Test', ylabel='Prediction')
+
+for i in range(2):
+  for j in range(2):
+    c = confusion[j][i]
+    ax.text(i, j, str(c), va='center', ha='center')
+plt.show()
