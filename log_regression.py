@@ -189,12 +189,12 @@ class LogisticRegression:
         accuracy_ = accuracy(y_valid, self.predict(X_valid))
         history = [accuracy_]
         for epoch in tqdm(range(epochs)):
-            indices = np.random.permutation(len(y_train)) if shuffle else np.arange(len(y_train))
+            indices = np.random.permutation(len(y)) if shuffle else np.arange(len(y))
             for batch in range(n_batches):
                 batch_indices = indices[batch * batch_size: (batch + 1) * batch_size]
                 X_batch = X[batch_indices]
                 y_batch = y[batch_indices]
-                # print(y_batch.shape)
+                
                 grad_b, grad_W = self._calculate_gradients(X_batch, y_batch)
                 self._b -= learning_rate * grad_b
                 self._W -= learning_rate * grad_W
@@ -228,16 +228,6 @@ class LogisticRegression:
         grad_W = X.T @ (y_pred - y) / len(y)
         return grad_b, grad_W
 
-"""
-model_sgd = LogisticRegression(initializer='normal')
-history_sgd = model_sgd.fit(X_train, y_train,
-                            X_valid, y_valid,
-                            epochs=500,
-                            batch_size=1,
-                            learning_rate=1e-3)
-
-"""
-
 ### Train the logistic regression model with changing batch sizes
 
 acc_batch_normal = []
@@ -254,7 +244,6 @@ def logistic_reg_trainer(initializer, batch_size):
     if initializer == 'uniform' : acc_batch_uniform.append(acc)
     if initializer == 'zeros' : acc_batch_zeros.append(acc)
 
-'''
 fig, axs = plt.subplots(2, 2, figsize=(18, 12))
 axs[1, 1].remove()
 
@@ -312,20 +301,31 @@ plt.show()
 
 for i in range(1, 5):
     print('Final Validation accuracy for Normal Initialization With Batch Size: {%d} is : {%f}',32 * i, acc_batch_normal[i - 1][-1])
-'''
-
-
+for i in range(1, 5):
+    print('Final Validation accuracy for Uniform Initialization With Batch Size: {%d} is : {%f}',32 * i, acc_batch_uniform[i - 1][-1])
+for i in range(1, 5):
+    print('Final Validation accuracy for Zeros Initialization With Batch Size: {%d} is : {%f}',32 * i, acc_batch_zeros[i - 1][-1])
 
 model = LogisticRegression("uniform")
 
 
 X_train_new = np.concatenate((X_train, X_valid), axis=0)
 y_train_new = np.concatenate((y_train, y_valid), axis=0)
-print(X_train_new.shape)
-test_acc = model.fit(X_train_new, y_train_new,
+final_test_acc = model.fit(X_train_new, y_train_new,
                     X_test, y_test,
                     epochs=20,
                     batch_size=64,
                     learning_rate=1e-3)
 
-print(test_acc)
+# Final Test Accuracy For The Best Logistic Regression Model
+x = list(range(20 + 1))
+plt.figure(figsize=(18, 12))
+plt.xlabel('Epochs')
+plt.ylabel('Test Accuracy')
+plt.xticks([x for x in range(0, 22, 2)])
+plt.plot(x, final_test_acc, label='Multinomial Model')
+plt.legend()
+plt.title('Test Accuracy for the Logistic Regression Model')
+plt.show()
+
+print('Final Test Accuracy: %f' % (final_test_acc[-1]))
