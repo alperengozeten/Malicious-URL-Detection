@@ -300,11 +300,11 @@ plt.subplots_adjust(wspace=0.2, hspace=0.5)
 plt.show()
 
 for i in range(1, 5):
-    print('Final Validation accuracy for Normal Initialization With Batch Size: {%d} is : {%f}',32 * i, acc_batch_normal[i - 1][-1])
+    print('Final Validation accuracy for Normal Initialization With Batch Size: %d is : %f' % (32 * i, acc_batch_normal[i - 1][-1]))
 for i in range(1, 5):
-    print('Final Validation accuracy for Uniform Initialization With Batch Size: {%d} is : {%f}',32 * i, acc_batch_uniform[i - 1][-1])
+    print('Final Validation accuracy for Uniform Initialization With Batch Size: %d is : %f' % (32 * i, acc_batch_uniform[i - 1][-1]))
 for i in range(1, 5):
-    print('Final Validation accuracy for Zeros Initialization With Batch Size: {%d} is : {%f}',32 * i, acc_batch_zeros[i - 1][-1])
+    print('Final Validation accuracy for Zeros Initialization With Batch Size: %d is : %f' % (32 * i, acc_batch_zeros[i - 1][-1]))
 
 model = LogisticRegression("uniform")
 
