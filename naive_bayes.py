@@ -53,9 +53,11 @@ print(X_train.head())
 
 # convert df into numpy
 x_train = X_train.to_numpy()
+x_valid = X_valid.to_numpy()
 x_test = X_test.to_numpy()
 y_train = y_train.to_numpy()
 y_test = y_test.to_numpy()
+y_valid = y_valid.to_numpy()
 
 # calculate the spam and normal class probabilities
 spam_count = np.count_nonzero(y_train)
@@ -89,17 +91,64 @@ with np.errstate(divide='ignore'):
 logSpamProbabilities[np.isneginf(logSpamProbabilities)]= -1e+12
 logNormalProbabilities[np.isneginf(logNormalProbabilities)]= -1e+12
 
+multinomial_acc_history = []
+def fit_smoothened_multinomial(alpha, spamFrequencies, normalFrequencies, x_train, y_test):
+    regularizedSpamFrequencies = spamFrequencies + alpha
+    regularizedNormalFrequencies = normalFrequencies + alpha
+
+    # regularize the word counts for spam and normal categories, as well
+    regularizedSpamWordCount = spamWordCount + alpha * x_train.shape[1]
+    regularizedNormalWordCount = normalWordCount + alpha * x_train.shape[1]
+
+    # divide by the total word count to find the probabilities
+    regularizedSpamProbabilities = regularizedSpamFrequencies / regularizedSpamWordCount
+    regularizedNormalProbabilities = regularizedNormalFrequencies / regularizedNormalWordCount
+
+    # take the logarithm of the probabilities
+    regularizedLogSpamProbabilities = np.log(regularizedSpamProbabilities)
+    regularizedLogNormalProbabilities = np.log(regularizedNormalProbabilities)
+
+    num_correct = tp = tn = fp = fn = 0
+    for i in range(x_test.shape[0]):
+        row = x_test[i]
+        probSpam = np.log(p_spam)
+        probNormal = np.log(p_normal)
+        
+        probSpam += (regularizedLogSpamProbabilities @ row)
+        probNormal += (regularizedLogNormalProbabilities @ row)
+
+        predicted = 0
+        if probSpam > probNormal:
+            predicted = 1
+        
+        if predicted == y_test[i]:
+            num_correct += 1
+            if predicted == 1:
+                tp += 1
+            else:
+                tn += 1
+        else:
+            if predicted == 1:
+                fp += 1
+            else:
+                fn += 1
+
+    print("--------------- Multinomial Model With Additive Smoothing alpha = %d ---------------" % (alpha))
+    print("The number of correct predictions: " + str(num_correct) + ", wrong predictions: " + str(x_test.shape[0] - num_correct) + ", accuracy: " + str(num_correct / x_test.shape[0]))
+    print("The number of true positives: " + str(tp) + ", true negatives: " + str(tn))
+    print("The number of false positives: " + str(fp) + ", false negatives: " + str(fn))
+
+# apply smoothing and compare on the validation set to pick the best smoothing
+for i in range(0, 10, 2):
+    fit_smoothened_multinomial(i, spamFrequencies, normalFrequencies, x_train, y_test)
+
+#the best behaving multinomial model is one with smoothing = 0, report its accuracy again
 num_correct = tp = tn = fp = fn = 0
 for i in range(x_test.shape[0]):
     row = x_test[i]
     probSpam = np.log(p_spam)
     probNormal = np.log(p_normal)
     
-    """
-    for j in range(row.shape[0]):
-        probSpam += (logSpamProbabilities[0, j] * row[j])
-        probNormal += (logNormalProbabilities[0, j] * row[j])
-    """
     probSpam += (logSpamProbabilities @ row)
     probNormal += (logNormalProbabilities @ row)
 

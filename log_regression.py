@@ -309,3 +309,6 @@ axs[1, 0].legend()
 
 plt.subplots_adjust(wspace=0.2, hspace=0.5)
 plt.show()
+
+for i in range(1, 5):
+    print('Final Validation accuracy for Normal Initialization With Batch Size: {%d} is : {%f}',32 * i, acc_batch_normal[i - 1][-1])
