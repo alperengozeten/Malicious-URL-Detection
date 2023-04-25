@@ -6,6 +6,7 @@ from typing import Literal, Tuple
 from tqdm import tqdm
 
 df = pd.read_csv("data/url_processed.csv")
+np.random.seed(2023)
 
 # shuffle the data frame
 df = df.sample(frac = 1)
@@ -237,7 +238,7 @@ for i in range(1, 5):
 for i in range(1, 5):
     print('Final Validation accuracy for Zeros Initialization With Batch Size: %d is : %f' % (32 * i, acc_batch_zeros[i - 1][-1]))
 
-model = LogisticRegression("uniform")
+model = LogisticRegression("normal")
 
 X_train_new = np.concatenate((X_train, X_valid), axis=0)
 y_train_new = np.concatenate((y_train, y_valid), axis=0)
