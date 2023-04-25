@@ -25,16 +25,16 @@ df['url_path'] = df['url'].apply(lambda x: get_path(x))
 df['contains_shortener'] = df['url'].apply(lambda x: check_shortening_service(x))
 
 # URL component length
-df['url_len'] = df['url'].apply(lambda x: len(str(x)))
-df['subdomain_len'] = df['subdomain'].apply(lambda x: len(str(x)))
-df['tld_len'] = df['tld'].apply(lambda x: len(str(x)))
-df['fld_len'] = df['fld'].apply(lambda x: len(str(x)))
+df['url_length'] = df['url'].apply(lambda x: len(str(x)))
+df['subdomain_length'] = df['subdomain'].apply(lambda x: len(str(x)))
+df['tld_length'] = df['tld'].apply(lambda x: len(str(x)))
+df['fld_length'] = df['fld'].apply(lambda x: len(str(x)))
 df['path_length'] = df['url_path'].apply(lambda x: len(str(x)))
 
 # count the number of alphanumeric characters, digits, and punctuations
 df['count_letters']= df['url'].apply(lambda i: alpha_count(i))
 df['count_digits']= df['url'].apply(lambda i: digit_count(i))
-df['count_puncs'] = (df['url_len'] - (df['count_letters'] + df['count_digits']))
+df['count_puncs'] = (df['url_length'] - (df['count_letters'] + df['count_digits']))
 
 # check special character counts for the url
 for c in ".@-%?=":
@@ -42,7 +42,7 @@ for c in ".@-%?=":
     # print(df['count'+c][:5])
 
 df['count_dirs'] = df['url_path'].apply(lambda x: sub_dir_count(x))
-df['first_dir_len'] = df['url_path'].apply(lambda x: len_first_dir(x))
+df['first_dir_length'] = df['url_path'].apply(lambda x: len_first_dir(x))
 
 # Binary Label by converting benign to 0 and all other classes to 1
 df['is_malicious'] = df['type'].apply(lambda x: 0 if x == 'benign' else 1)
@@ -50,9 +50,9 @@ df['is_malicious'] = df['type'].apply(lambda x: 0 if x == 'benign' else 1)
 # Binned Features
 groups = ['Short', 'Medium', 'Long', 'Very Long']
 # URL Lengths in 4 bins
-df['url_len_q'] = pd.qcut(df['url_len'], q=4, labels=groups)
+df['url_length_q'] = pd.qcut(df['url_length'], q=4, labels=groups)
 # FLD Lengths in 4 bins
-df['fld_len_q'] = pd.qcut(df['fld_len'], q=4, labels=groups)
+df['fld_length_q'] = pd.qcut(df['fld_length'], q=4, labels=groups)
 
 # Counts for https, http, www
 df['https'] = df['url'].apply(lambda i: check_http(i))
@@ -61,12 +61,12 @@ df['count-http'] = df['url'].apply(lambda a: a.count('http'))
 df['count-www'] = df['url'].apply(lambda a: a.count('www'))
 
 # Percentage Features
-df['letters_ratio'] = df['count_letters'] / df['url_len'] 
-df['digit_ratio'] = df['count_digits'] / df['url_len']
-df['punc_ratio'] = df['count_puncs'] / df['url_len']
+df['letters_ratio'] = df['count_letters'] / df['url_length'] 
+df['digit_ratio'] = df['count_digits'] / df['url_length']
+df['punc_ratio'] = df['count_puncs'] / df['url_length']
 
 enc = OrdinalEncoder()
-df[["url_len_q","fld_len_q"]] = enc.fit_transform(df[["url_len_q","fld_len_q"]])
+df[["url_length_q","fld_length_q"]] = enc.fit_transform(df[["url_length_q","fld_length_q"]])
 
 print(df.head())
 

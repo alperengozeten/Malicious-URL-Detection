@@ -8,11 +8,11 @@ df = pd.read_csv("data/url_processed.csv")
 df = df.sample(frac = 1)
 
 # pick only the numeric features
-X = df[['use_of_ip', 'url_len', 'subdomain_len', 'tld_len', 'fld_len', 'path_length',
+X = df[['use_of_ip', 'url_length', 'subdomain_length', 'tld_length', 'fld_length', 'path_length',
        'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
        'count%', 'count?', 'count=', 'count_dirs',
-       'contains_shortener', 'first_dir_len',
-       'url_len_q', 'fld_len_q', 'https', 'count-https', 'count-http', 'count-www']]
+       'contains_shortener', 'first_dir_length',
+       'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www']]
 
 print(X.head())
 
@@ -28,9 +28,9 @@ print(X.isna().sum())
 
 X.replace([np.inf, -np.inf], 0, inplace=True)
 
-X['first_dir_len'] = X['first_dir_len'].astype('int64')
-X['url_len_q'] = X['url_len_q'].astype('int64')
-X['fld_len_q'] = X['fld_len_q'].astype('int64')
+X['first_dir_length'] = X['first_dir_length'].astype('int64')
+X['url_length_q'] = X['url_length_q'].astype('int64')
+X['fld_length_q'] = X['fld_length_q'].astype('int64')
 
 # divide the data into train, test and validation datasets
 n = len(y)

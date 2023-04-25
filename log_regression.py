@@ -10,12 +10,12 @@ df = pd.read_csv("data/url_processed.csv")
 # shuffle the data frame
 df = df.sample(frac = 1)
 
-X = df[['use_of_ip', 'url_len', 'subdomain_len', 'tld_len', 'fld_len', 'path_length',
+X = df[['use_of_ip', 'url_length', 'subdomain_length', 'tld_length', 'fld_length', 'path_length',
        'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
        'count%', 'count?', 'count=',
        'letters_ratio', 'digit_ratio', 'punc_ratio', 'count_dirs',
-       'contains_shortener', 'first_dir_len',
-       'url_len_q', 'fld_len_q', 'https', 'count-https', 'count-http', 'count-www']]
+       'contains_shortener', 'first_dir_length',
+       'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www']]
 
 print(X.head())
 
