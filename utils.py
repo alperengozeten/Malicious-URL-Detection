@@ -86,22 +86,20 @@ def digit_count(url: str) -> int:
             d_count += 1
     return d_count
 
-""" return number of '/' and hence number of sub directories """
-def sub_dir_count(url: Union[str, None]) -> int:
-
+""" the number of '/' characters gives the number of subdirectories """
+def sub_directory_count(url: Union[str, None]):
     if url:
         dir_count = url.count('/')
         return dir_count
-    else: return 0
+    return 0
 
 """ return length of the first directory """
-def len_first_dir(url: Union[str, None]) -> int:
-
+def len_first_directory(url: Union[str, None]):
     if url:
         if len(url.split('/')) > 1:
             first_dir_len = len(url.split('/')[1])
             return first_dir_len
-    else: return 0
+    return 0
 
 """ check whether the URL has a shortening service or not
 Shortening Service: a third-party website that converts that long URL to a short, 
