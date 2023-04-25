@@ -10,6 +10,7 @@ df = pd.read_csv("data/url_processed.csv")
 # shuffle the data frame
 df = df.sample(frac = 1)
 
+# our feature matrix
 X = df[['use_of_ip', 'url_length', 'subdomain_length', 'tld_length', 'fld_length', 'path_length',
        'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
        'count%', 'count?', 'count=',
@@ -19,6 +20,7 @@ X = df[['use_of_ip', 'url_length', 'subdomain_length', 'tld_length', 'fld_length
 
 print(X.head())
 
+# labels
 y = df['is_malicious']
 
 print(X.isna().sum())
@@ -30,20 +32,22 @@ X = X.fillna(0)
 print(X.isna().sum())
 
 # divide the data into train, test and validation datasets
-n = len(y)
+length = len(y)
 
-train_size = int(n * 0.7)
-valid_size = int(n * 0.1)
-test_size = int(n * 0.2)
+# %70 train, %10 validation, %20 test
+train_set_size = int(length * 0.7)
+valid_set_size = int(length * 0.1)
+test_set_size = int(length * 0.2)
 
-X_train = X.iloc[:train_size]
-y_train = y.iloc[:train_size]
 
-X_valid = X.iloc[train_size: train_size + valid_size]
-y_valid = y.iloc[train_size: train_size + valid_size]
+X_train = X.iloc[:train_set_size]
+y_train = y.iloc[:train_set_size]
 
-X_test = X.iloc[train_size + valid_size:]
-y_test = y.iloc[train_size + valid_size:]
+X_valid = X.iloc[train_set_size: train_set_size + valid_set_size]
+y_valid = y.iloc[train_set_size: train_set_size + valid_set_size]
+
+X_test = X.iloc[train_set_size + valid_set_size:]
+y_test = y.iloc[train_set_size + valid_set_size:]
 
 print(X_train.shape, X_valid.shape, X_test.shape)
 
@@ -54,173 +58,102 @@ print(X_train.head())
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
-def accuracy(y_true, y_pred):
+def calc_accuracy(y_true, y_pred):
     y_true = np.asarray(y_true)
     y_pred = np.asarray(y_pred)
     return np.mean(y_true == y_pred)
 
+# logistic regression class
 class LogisticRegression:
-    """
-    Logistic regression model that fits the parameters using gradient descent.
 
-    Attributes:
-        b : np.ndarray
-            the bias vector of the model
-        W : np.ndarray
-            the weight matrix of the model
-        alpha : float
-            the learning rate of the model
-    """
+    # param b : y interception
+    # param W : weights
+    # initializer : initial distribution of weights
     def __init__(self, initializer: Literal['normal', 'uniform', 'zeros']):
-        """
-        The init method of the LogisticRegression model
-        :param initializer: the weight initialization method
-        """
+
         self._b = None
         self._W = None
         self.initializer = initializer
-        self.check_initializer()
 
     @property
     def b(self) -> np.ndarray:
-        """
-        The y-intercept of the model
-        :return: the y-intercept
-        """
         return self._b
 
     @property
     def W(self) -> np.ndarray:
-        """
-        The weight matrix of the model
-        :return: the weight matrix
-        """
         return self._W
 
     def __repr__(self) -> str:
-        """
-        Returns the initialization signature of the instance
-        :return: the string representation
-        """
         return f'LogisticRegression(initializer={self.initializer})'
 
     def __str__(self) -> str:
-        """
-        Calls the repr method of the class
-        :return: the string representation
-        """
+        # calls __repr__
         return repr(self)
     
-    def check_initializer(self):
-        """
-        Checks whether an initializer is implemented
-        """
-        return self.initializer in {'normal', 'uniform', 'zeros'}
-    
-    def initialize_parameters(self,
-                              in_features: int,
+    # initializes the parameters according to given features
+    def init_params(self, in_features: int,
                               initializer: Literal['normal', 'uniform', 'zeros'] = None):
-        """
-        Initializes the model parameters from a standart normal distribution
-        
-        :param in_features: the number of features
-        """
         if initializer is None:
             initializer = self.initializer
         if initializer == 'zeros':
             self._b = 0
             self._W = np.zeros(in_features)
         else:
-            rng = np.random.default_rng()
-            if initializer == 'normal':
-                self._b = rng.normal(0, 1, size=1)
-                self._W = rng.normal(0, 1, size=in_features)
-            elif initializer == 'uniform':
-                self._b = rng.uniform(-0.01, 0.01, size=1)
-                self._W = rng.uniform(-0.01, 0.01, size=in_features)
-            else:
-                raise NotImplementedError('Only "normal", "uniform" and '
-                                          '"zeros" are supported as initializer.')
+            random = np.random.default_rng()
+            if initializer == 'uniform':
+                self._b = random.uniform(-0.01, 0.01, size=1)
+                self._W = random.uniform(-0.01, 0.01, size=in_features)
+            elif initializer == 'normal':
+                self._b = random.normal(0, 1, size=1)
+                self._W = random.normal(0, 1, size=in_features)
 
+
+    # calculates the probability for the output of the sigmoid function
     def __call__(self, X: np.ndarray) -> np.ndarray:
-        """
-        Calculates the probability of being in the positive class
-        :param X: the feature matrix
-        :return: predictions
-        """
-        if self.b is None or self.W is None:
-            raise RuntimeError('The model is not fit.')
         return sigmoid(self.b + X @ self.W)
 
-    def fit(self,
-            X: np.ndarray,
-            y: np.ndarray,
-            X_valid: np.ndarray,
-            y_valid: np.ndarray,
-            epochs: int = 1,
-            batch_size: int = None,
-            learning_rate: float = 0.01,
-            shuffle: bool = True) -> np.ndarray:
-        """
-        Calculates the weights and bias of the model using the gradient descent algorithm
-        :param X: the feature matrix
-        :param y: the target vector
-        :param epochs: the number of iterations over the training set
-        :param batch_size: the batch size. Set to None to set batch size
-                           equal to the train dataset size
-        :param X_valid: the feature matrix of the validation dataset
-        :param y_valid: the target vector of the validation dataset
-        :return: the accuracy history
-        """
+    # fits the model
+    def fit(self, X: np.ndarray, y: np.ndarray, X_valid: np.ndarray, y_valid: np.ndarray, epochs: int = 1,
+            batch_size: int = None, learning_rate: float = 0.01, shuffle: bool = True) -> np.ndarray:
+
+        # X : design matrix
+        # y : label vector
+        # X_valid : validation set design matrix
+        # y_valid : validation set label vector
         X = np.asarray(X)
         y = np.asarray(y)
         X_valid = np.asarray(X_valid)
         y_valid = np.asarray(y_valid)
         
         if self.b is None or self.W is None:
-            self.initialize_parameters(X.shape[-1])
+            self.init_params(X.shape[-1])
 
         if batch_size is None:
             batch_size = len(y)
         n_batches = len(y) // batch_size
         
-        accuracy_ = accuracy(y_valid, self.predict(X_valid))
-        history = [accuracy_]
-        for epoch in tqdm(range(epochs)):
-            indices = np.random.permutation(len(y)) if shuffle else np.arange(len(y))
+        acc_log = calc_accuracy(y_valid, self.predict(X_valid))
+        history = [acc_log]
+        for _ in tqdm(range(epochs)):
+            idx = np.random.permutation(len(y)) if shuffle else np.arange(len(y))
             for batch in range(n_batches):
-                batch_indices = indices[batch * batch_size: (batch + 1) * batch_size]
-                X_batch = X[batch_indices]
-                y_batch = y[batch_indices]
-                
-                grad_b, grad_W = self._calculate_gradients(X_batch, y_batch)
-                self._b -= learning_rate * grad_b
-                self._W -= learning_rate * grad_W
-            accuracy_ = accuracy(y_valid, self.predict(X_valid))
-            history.append(accuracy_)
+                batch_idx = idx[batch * batch_size: (batch + 1) * batch_size]
+                X_batch = X[batch_idx]
+                y_batch = y[batch_idx]
+                grad_b, grad_W = self._calc_gradients(X_batch, y_batch)
+                self._b = self._b - learning_rate * grad_b
+                self._W = self._W - learning_rate * grad_W
+            acc_log = calc_accuracy(y_valid, self.predict(X_valid))
+            history.append(acc_log)
+
         return np.asarray(history)
 
-    def predict(self, 
-                X: np.ndarray,
-                threshold: float = 0.5) -> np.ndarray:
-        """
-        Predicts the class labels of the inputs
-        
-        :param X: the input data
-        :param threshold: the threshold over which the class will be considered positive
-        """
+    # predict the output with respect to some threshold
+    def predict(self, X: np.ndarray, threshold: float = 0.5) -> np.ndarray:
         return np.asarray(self(X) > threshold, dtype=np.int32)
 
-    def _calculate_gradients(self,
-                             X: np.ndarray,
-                             y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Calculate the gradients for binary crossentropy loss
-        with current bias and weights
-        :param X: the feature matrix
-        :param y: the target vector
-        :return: the gradients of the bias and the weights
-        """
+    # calculate gradients and update later
+    def _calc_gradients(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         y_pred = self(X)
         grad_b = np.mean(y_pred - y)
         grad_W = X.T @ (y_pred - y) / len(y)
