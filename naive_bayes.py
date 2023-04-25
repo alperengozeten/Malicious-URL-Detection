@@ -8,7 +8,7 @@ df = pd.read_csv("data/url_processed.csv")
 df = df.sample(frac = 1)
 
 # pick only the numeric features
-X = df[['use_of_ip', 'url_len', 'subdomain_len', 'tld_len', 'fld_len', 'url_path_len',
+X = df[['use_of_ip', 'url_len', 'subdomain_len', 'tld_len', 'fld_len', 'path_length',
        'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
        'count%', 'count?', 'count=', 'count_dirs',
        'contains_shortener', 'first_dir_len',

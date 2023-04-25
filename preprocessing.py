@@ -29,7 +29,7 @@ df['url_len'] = df['url'].apply(lambda x: len(str(x)))
 df['subdomain_len'] = df['subdomain'].apply(lambda x: len(str(x)))
 df['tld_len'] = df['tld'].apply(lambda x: len(str(x)))
 df['fld_len'] = df['fld'].apply(lambda x: len(str(x)))
-df['url_path_len'] = df['url_path'].apply(lambda x: len(str(x)))
+df['path_length'] = df['url_path'].apply(lambda x: len(str(x)))
 
 # count the number of alphanumeric characters, digits, and punctuations
 df['count_letters']= df['url'].apply(lambda i: alpha_count(i))
