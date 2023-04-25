@@ -5,7 +5,7 @@ from tld import get_tld
 from typing import Tuple, Union
 from urllib.parse import urlparse
 
-def is_url_ip_address(url: str) -> bool:
+def contains_ip_address(url: str) -> bool:
     match = re.search(
         '(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.'
         '([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\/)|'  # IPv4
@@ -36,7 +36,7 @@ def extract_tld(url: str, fix_protos: bool = False) -> Tuple[str, str, str, str]
 set four instances to None. If not, call extract_tld to process URL"""
 def process_url(row: pd.Series) -> Tuple[str, str, str, str]:
     try:
-        if row['is_ip'] == 0:
+        if row['use_of_ip'] == 0:
             if str(row['url']).startswith('http:'):
                 return extract_tld(row['url'])
             else:

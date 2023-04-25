@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import is_url_ip_address, process_url, get_path, check_shortening_service, sub_dir_count, alpha_count, digit_count, len_first_dir, check_http
+from utils import contains_ip_address, process_url, get_path, check_shortening_service, sub_dir_count, alpha_count, digit_count, len_first_dir, check_http
 from sklearn.preprocessing import OrdinalEncoder
 
 df = pd.read_csv("data/malicious_phish.csv")
@@ -7,9 +7,13 @@ df = pd.read_csv("data/malicious_phish.csv")
 print(df.head())
 
 # create a column named is_ip by using the ip check function
-df['is_ip'] = df['url'].apply(lambda i: is_url_ip_address(i))
+df['use_of_ip'] = df['url'].apply(lambda i: contains_ip_address(i))
 
-print(df['is_ip'].value_counts())
+# get the number of URLs containing IP address
+print(df['use_of_ip'].value_counts())
+
+# an example url starting with the ip address
+print(df[df['use_of_ip'] == 1].iloc[0]['url'])
 
 print(df['url'][1])
 
