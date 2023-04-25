@@ -68,14 +68,14 @@ def get_path(url: str) -> Union[str, None]:
     except:
         return None
 
-""" return alpha characters count """
-def alpha_count(url: str) -> int:
+""" returns letter count """
+def letter_count(url: str) -> int:
 
-    a_count = 0
+    letter_count = 0
     for c in url:
         if c.isalpha():
-            a_count += 1
-    return a_count
+            letter_count += 1
+    return letter_count
 
 """ return digits count """
 def digit_count(url: str) -> int:

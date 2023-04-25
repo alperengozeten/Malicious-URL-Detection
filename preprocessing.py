@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import contains_ip_address, process_url, get_path, check_shortening_service, sub_directory_count, alpha_count, digit_count, len_first_directory, check_http
+from utils import contains_ip_address, process_url, get_path, check_shortening_service, sub_directory_count, letter_count, digit_count, len_first_directory, check_http
 from sklearn.preprocessing import OrdinalEncoder
 
 df = pd.read_csv("data/malicious_phish.csv")
@@ -32,7 +32,7 @@ df['fld_length'] = df['fld'].apply(lambda x: len(str(x)))
 df['path_length'] = df['url_path'].apply(lambda x: len(str(x)))
 
 # count the number of alphanumeric characters, digits, and punctuations
-df['count_letters']= df['url'].apply(lambda i: alpha_count(i))
+df['count_letters']= df['url'].apply(lambda i: letter_count(i))
 df['count_digits']= df['url'].apply(lambda i: digit_count(i))
 df['count_puncs'] = (df['url_length'] - (df['count_letters'] + df['count_digits']))
 
