@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 
 from typing import Literal, Tuple
 from tqdm import tqdm
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
 df = pd.read_csv("data/url_processed.csv")
 
@@ -13,15 +11,15 @@ df = pd.read_csv("data/url_processed.csv")
 df = df.sample(frac = 1)
 
 X = df[['is_ip', 'url_len', 'subdomain_len', 'tld_len', 'fld_len', 'url_path_len',
-       'url_alphas', 'url_digits', 'url_puncs', 'count.', 'count@', 'count-',
+       'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
        'count%', 'count?', 'count=',
-       'pc_alphas', 'pc_digits', 'pc_puncs', 'count_dirs',
+       'letters_ratio', 'digit_ratio', 'punc_ratio', 'count_dirs',
        'contains_shortener', 'first_dir_len',
        'url_len_q', 'fld_len_q', 'https', 'count-https', 'count-http', 'count-www']]
 
 print(X.head())
 
-y = df['binary_label']
+y = df['is_malicious']
 
 print(X.isna().sum())
 

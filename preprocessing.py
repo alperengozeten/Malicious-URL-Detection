@@ -28,9 +28,9 @@ df['fld_len'] = df['fld'].apply(lambda x: len(str(x)))
 df['url_path_len'] = df['url_path'].apply(lambda x: len(str(x)))
 
 # count the number of alphanumeric characters, digits, and punctuations
-df['url_alphas']= df['url'].apply(lambda i: alpha_count(i))
-df['url_digits']= df['url'].apply(lambda i: digit_count(i))
-df['url_puncs'] = (df['url_len'] - (df['url_alphas'] + df['url_digits']))
+df['count_letters']= df['url'].apply(lambda i: alpha_count(i))
+df['count_digits']= df['url'].apply(lambda i: digit_count(i))
+df['count_puncs'] = (df['url_len'] - (df['count_letters'] + df['count_digits']))
 
 # check special character counts for the url
 for c in ".@-%?=":
@@ -41,7 +41,7 @@ df['count_dirs'] = df['url_path'].apply(lambda x: sub_dir_count(x))
 df['first_dir_len'] = df['url_path'].apply(lambda x: len_first_dir(x))
 
 # Binary Label by converting benign to 0 and all other classes to 1
-df['binary_label'] = df['type'].apply(lambda x: 0 if x == 'benign' else 1)
+df['is_malicious'] = df['type'].apply(lambda x: 0 if x == 'benign' else 1)
 
 # Binned Features
 groups = ['Short', 'Medium', 'Long', 'Very Long']
@@ -57,9 +57,9 @@ df['count-http'] = df['url'].apply(lambda a: a.count('http'))
 df['count-www'] = df['url'].apply(lambda a: a.count('www'))
 
 # Percentage Features
-df['pc_alphas'] = df['url_alphas'] / df['url_len'] 
-df['pc_digits'] = df['url_digits'] / df['url_len']
-df['pc_puncs'] = df['url_puncs'] / df['url_len']
+df['letters_ratio'] = df['count_letters'] / df['url_len'] 
+df['digit_ratio'] = df['count_digits'] / df['url_len']
+df['punc_ratio'] = df['count_puncs'] / df['url_len']
 
 enc = OrdinalEncoder()
 df[["url_len_q","fld_len_q"]] = enc.fit_transform(df[["url_len_q","fld_len_q"]])

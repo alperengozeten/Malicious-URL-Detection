@@ -9,14 +9,14 @@ df = df.sample(frac = 1)
 
 # pick only the numeric features
 X = df[['is_ip', 'url_len', 'subdomain_len', 'tld_len', 'fld_len', 'url_path_len',
-       'url_alphas', 'url_digits', 'url_puncs', 'count.', 'count@', 'count-',
+       'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
        'count%', 'count?', 'count=', 'count_dirs',
        'contains_shortener', 'first_dir_len',
        'url_len_q', 'fld_len_q', 'https', 'count-https', 'count-http', 'count-www']]
 
 print(X.head())
 
-y = df['binary_label']
+y = df['is_malicious']
 
 print(X.isna().sum())
 
