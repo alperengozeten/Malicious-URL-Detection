@@ -6,7 +6,7 @@ from typing import Tuple, Union
 from urllib.parse import urlparse
 
 def contains_ip_address(url: str) -> bool:
-    match = re.search(
+    contains_ip = re.search(
         '(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.'
         '([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\/)|'  # IPv4
         '(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.'
@@ -15,15 +15,14 @@ def contains_ip_address(url: str) -> bool:
         '(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}|'
         '([0-9]+(?:\.[0-9]+){3}:[0-9]+)|'
         '((?:(?:\d|[01]?\d\d|2[0-4]\d|25[0-5])\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d|\d)(?:\/\d{1,2})?)', url)  # Ipv6
-    if match:
+    if contains_ip:
         return 1
-    else:
-        return 0
+    return 0
 
 """ returns full length domain (fld), top level domain (tld), domain, and
 subdomain names for a given URL. These can be useful as features """  
 def extract_tld(url: str, fix_protos: bool = False) -> Tuple[str, str, str, str]:
-    res = get_tld(url, as_object = True, fail_silently=False, fix_protocol=fix_protos)
+    res = get_tld(url, as_object = True, fail_silently=True, fix_protocol=fix_protos)
 
     fld = res.fld
     tld = res.tld
@@ -34,18 +33,18 @@ def extract_tld(url: str, fix_protos: bool = False) -> Tuple[str, str, str, str]
 
 """" takes an instance and checks if the url is an IP address. If yes, 
 set four instances to None. If not, call extract_tld to process URL"""
-def process_url(row: pd.Series) -> Tuple[str, str, str, str]:
+def process_url(data: pd.Series) -> Tuple[str, str, str, str]:
     try:
-        if row['use_of_ip'] == 0:
-            if str(row['url']).startswith('http:'):
-                return extract_tld(row['url'])
-            return extract_tld(row['url'], fix_protos=True)
+        if data['use_of_ip'] == 0:
+            if str(data['url']).startswith('http:'):
+                return extract_tld(data['url'])
+            return extract_tld(data['url'], fix_protos=True)
         return None, None, None, None
     except:
-        index = row.name
-        url = row['url']
-        type = row['type']
-        print(f'Fail: {index}: {url} is a type of: {type}') # in case processing fails, print failed instances and the count
+        index = data.name
+        url = data['url']
+        type = data['type']
+        #print(f'Fail: {index}: {url} is a type of: {type}') # in case processing fails, print failed instances and the count
         return None, None, None, None
 
 """ returns the path of the url
@@ -53,7 +52,7 @@ for example: www.bilkent.com/srs/cgpa -> srs/cgpa """
 def get_path(url: str) -> Union[str, None]:
 
     try:
-        res = get_tld(url, as_object = True, fail_silently=False, fix_protocol=True)
+        res = get_tld(url, as_object = True, fail_silently=True, fix_protocol=True)
         if res.parsed_url.query:
             joined = res.parsed_url.path + res.parsed_url.query
             return joined
@@ -110,7 +109,7 @@ def check_shortening_service(url: str) -> int:
                       'tr\.im|link\.zip\.net',
                       url)
     if check: return 1
-    else: return 0
+    return 0
 
 """ check whether the URL starts with 'http' or 'https' """
 def check_http(url):
@@ -119,4 +118,4 @@ def check_http(url):
 
     if check == 'https':
         return 1
-    else: return 0
+    return 0
