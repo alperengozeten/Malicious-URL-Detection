@@ -39,14 +39,8 @@ def process_url(row: pd.Series) -> Tuple[str, str, str, str]:
         if row['use_of_ip'] == 0:
             if str(row['url']).startswith('http:'):
                 return extract_tld(row['url'])
-            else:
-                return extract_tld(row['url'], fix_protos=True)
-        else:
-            fld = None
-            tld = None
-            domain = None
-            subdomain = None
-            return fld, tld, domain, subdomain
+            return extract_tld(row['url'], fix_protos=True)
+        return None, None, None, None
     except:
         index = row.name
         url = row['url']
