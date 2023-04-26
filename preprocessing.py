@@ -41,11 +41,15 @@ for c in ".@-%?=":
     df['count'+c] = df['url'].apply(lambda a: a.count(c))
     # print(df['count'+c][:5])
 
-df['count_dirs'] = df['url_path'].apply(lambda x: sub_directory_count(x))
-df['first_dir_length'] = df['url_path'].apply(lambda x: len_first_directory(x))
-
 # Binary Label by converting benign to 0 and all other classes to 1
 df['is_malicious'] = df['type'].apply(lambda x: 0 if x == 'benign' else 1)
+
+# Inspect the malicious URLs
+print(df[df['is_malicious'] == 1].head())
+
+# the number of subdirectories (number of /) and the length can be helpful
+df['count_dirs'] = df['url_path'].apply(lambda x: sub_directory_count(x))
+df['first_dir_length'] = df['url_path'].apply(lambda x: len_first_directory(x))
 
 # Binned Features
 groups = ['Short', 'Medium', 'Long', 'Very Long']
