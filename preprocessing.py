@@ -22,7 +22,7 @@ df[['subdomain', 'domain', 'tld', 'fld']] = df.apply(lambda x: process_url(x), a
 
 # General Features
 df['url_path'] = df['url'].apply(lambda x: get_path(x))
-df['contains_shortener'] = df['url'].apply(lambda x: check_shortening_service(x))
+df['use_of_shortener'] = df['url'].apply(lambda x: check_shortening_service(x))
 
 # URL component length
 df['url_length'] = df['url'].apply(lambda x: len(str(x)))

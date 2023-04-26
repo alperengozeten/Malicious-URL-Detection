@@ -106,8 +106,7 @@ def check_shortening_service(url: str) -> int:
                       'db\.tt|qr\.ae|adf\.ly|goo\.gl|bitly\.com|cur\.lv|tinyurl\.com|ow\.ly|bit\.ly|ity\.im|'
                       'q\.gs|is\.gd|po\.st|bc\.vc|twitthis\.com|u\.to|j\.mp|buzurl\.com|cutt\.us|u\.bb|yourls\.org|'
                       'x\.co|prettylinkpro\.com|scrnch\.me|filoops\.info|vzturl\.com|qr\.net|1url\.com|tweez\.me|v\.gd|'
-                      'tr\.im|link\.zip\.net',
-                      url)
+                      'tr\.im|link\.zip\.net', url)
     if check: return 1
     return 0
 
