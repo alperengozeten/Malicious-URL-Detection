@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import time
 
 df = pd.read_csv("data/url_processed.csv")
 
@@ -76,6 +77,7 @@ word_counts = np.sum(x_train, axis = 1)
 spamWordCount = word_counts.T @ y_train
 normalWordCount = word_counts.T @ (1 - y_train)
 
+start_time = time.time()
 # Get the frequencies for each word seperately
 spamFrequencies = y_train.T @ x_train
 normalFrequencies = (1 - y_train.T) @ x_train 
@@ -91,6 +93,7 @@ with np.errstate(divide='ignore'):
 
 logSpamProbabilities[np.isneginf(logSpamProbabilities)]= -1e+12
 logNormalProbabilities[np.isneginf(logNormalProbabilities)]= -1e+12
+print("--- %s seconds ---" % (time.time() - start_time))
 
 multinomial_acc_history = []
 def fit_smoothened_multinomial(alpha, spamFrequencies, normalFrequencies, x_train, x_test, y_test):
@@ -249,6 +252,7 @@ print("f1 score for multinomial model with smoothing = 0: ", f1_score)
 Bernoulli Model is trained on train + validation and its accuracy is reported
 on the test dataset since it doesn't have any parameters to tune
 """
+start_time = time.time()
 # create a copy of the train and test datasets
 bernoulli_x_train = np.copy(x_train)
 bernoulli_x_test = np.copy(x_test)
@@ -264,6 +268,7 @@ bernoulliNormalFrequencies = (1 - y_train.T) @ bernoulli_x_train
 bernoulliSpamProbabilities = bernoulliSpamFrequencies / spam_count
 bernoulliNormalProbabilities = bernoulliNormalFrequencies / normal_count
 
+print("--- %s seconds ---" % (time.time() - start_time))
 num_correct = tp = tn = fp = fn = 0
 y_pred_berno = []
 for i in range(bernoulli_x_test.shape[0]):

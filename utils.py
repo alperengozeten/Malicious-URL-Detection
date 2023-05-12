@@ -41,10 +41,6 @@ def process_url(data: pd.Series) -> Tuple[str, str, str, str]:
             return extract_tld(data['url'], fix_protos=True)
         return None, None, None, None
     except:
-        index = data.name
-        url = data['url']
-        type = data['type']
-        #print(f'Fail: {index}: {url} is a type of: {type}') # in case processing fails, print failed instances and the count
         return None, None, None, None
 
 """ returns the path of the url
