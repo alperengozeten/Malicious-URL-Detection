@@ -39,7 +39,6 @@ train_set_size = int(length * 0.7)
 valid_set_size = int(length * 0.1)
 test_set_size = int(length * 0.2)
 
-
 X_train = X.iloc[:train_set_size]
 y_train = y.iloc[:train_set_size]
 
@@ -50,7 +49,7 @@ X_test = X.iloc[train_set_size + valid_set_size:]
 y_test = y.iloc[train_set_size + valid_set_size:]
 
 best_model = NeuralNetwork(n_neurons=[64, 64, 1])
-history = best_model.fit(X_train, y_train, X_test, y_test, alpha=0.001, batch_size=32, momentum=0.85,epochs=50, patience=5)
+history = best_model.fit(X_train, y_train, X_test, y_test, alpha=0.001, batch_size=32, momentum=0.85,epochs=150, patience=5)
 
 h = pd.DataFrame.from_dict(history)[['train_MSE', 'valid_MSE']]
 h = h.set_axis(['Train MSE', 'Test MSE'], axis=1)

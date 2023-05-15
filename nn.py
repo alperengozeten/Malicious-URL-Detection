@@ -4,6 +4,7 @@ from typing import Any, Type, Tuple, Iterable
 from collections import defaultdict, namedtuple
 from tqdm import tqdm
 from metrics import mse, mae, mape, r2
+from sklearn.metrics import accuracy_score
 
 def relu(z):
     return np.maximum(0, z)
@@ -17,13 +18,18 @@ def sigmoid(z):
 def sigmoid_backward(z):
     return (np.exp(-z) / ((1 + np.exp(-z)) ** 2))
 
+def calc_accuracy(y_true, y_pred):
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+    return np.mean(y_true == y_pred)
+
 FullyConnectedLayerWeights = namedtuple('FullyConnectedLayerWeights', ['b', 'W'])
 FullyConnectedLayerGradients = FullyConnectedLayerWeights
 
 DEFAULT_METRICS = {
     'MSE': mse,
     'MAE': mae,
-    'MAPE': mape,
+#    'MAPE': mape,
     'R2': r2,
 }
 
@@ -116,6 +122,10 @@ class NeuralNetwork:
         V = self.perceptron[-1].W @ Z + self.perceptron[-1].b
         Z = sigmoid(V)
         return Z.T
+    
+    # predict the output with respect to some threshold
+    def predict(self, X: np.ndarray, threshold: float = 0.5) -> np.ndarray:
+        return np.asarray(self(X) > threshold, dtype=np.int32)
 
     def forward(self, X, y):
         """
@@ -242,6 +252,8 @@ class NeuralNetwork:
             train_avg_losses = {metric: np.mean([loss[metric] for loss in batch_avg_losses])
                                 for metric in DEFAULT_METRICS.keys()}
 
+            acc_log = accuracy_score(y_valid, self.predict(X_valid))
+
             # log training and validation metrics
 
             for metric in DEFAULT_METRICS.keys():
@@ -251,7 +263,8 @@ class NeuralNetwork:
             progress_bar.set_description_str(f'n_neurons={"-".join([str(i) for i in self.n_neurons])}, '
                                              f'alpha={alpha}, momentum={momentum}, batch_size={batch_size}')
             progress_bar.set_postfix_str(f'train_mse={train_avg_losses["MSE"]:.7f}, '
-                                         f'valid_mse={valid_avg_losses["MSE"]:.7f}')
+                                         f'valid_mse={valid_avg_losses["MSE"]:.7f}, '
+                                         f'valid_acc={acc_log:.7f}')
 
             # stop the training if there is no improvement in last "tolerance" episodes
             if epoch > 2 and history['valid_MSE'][-2] - history['valid_MSE'][-1] < min_delta:
