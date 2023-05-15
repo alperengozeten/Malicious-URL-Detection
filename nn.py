@@ -8,13 +8,14 @@ from metrics import mse, mae, mape, r2
 def relu(z):
     return np.maximum(0, z)
 
-
 def relu_backward(z):
     return np.where(z > 0, 1, 0)
 
-# Weight and gradient containers for readability
-RecurrentLayerWeights = namedtuple('RecurrentLayerWeights', ['b', 'Wx', 'Wh'])
-RecurrentLayerGradients = RecurrentLayerWeights
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+def sigmoid_backward(z):
+    return (np.exp(-z) / ((1 + np.exp(-z)) ** 2))
 
 FullyConnectedLayerWeights = namedtuple('FullyConnectedLayerWeights', ['b', 'W'])
 FullyConnectedLayerGradients = FullyConnectedLayerWeights
@@ -113,7 +114,7 @@ class NeuralNetwork:
             V = layer.W @ Z + layer.b
             Z = relu(V)
         V = self.perceptron[-1].W @ Z + self.perceptron[-1].b
-        Z = V
+        Z = sigmoid(V)
         return Z.T
 
     def forward(self, X, y):
@@ -131,7 +132,7 @@ class NeuralNetwork:
             Z_cache.append(Z)
 
         V = self.perceptron[-1].W @ Z + self.perceptron[-1].b
-        Z = V
+        Z = sigmoid(V)
 
         V_cache.append(V)
         Z_cache.append(Z)
@@ -145,7 +146,7 @@ class NeuralNetwork:
         # calculate the gradients for the MLP
         gradients = []
 
-        delta = (2 / Z_cache[-1].shape[1]) * np.subtract(Z_cache[-1], y) # np.sign(Z_cache[-1] - y)
+        delta = (2 / Z_cache[-1].shape[1]) * np.subtract(Z_cache[-1], y) * sigmoid_backward(V_cache[-1]) # np.sign(Z_cache[-1] - y)
         db = np.mean(delta, axis=1, keepdims=True)
         dW = delta @ Z_cache[-2].T / Z_cache[-2].shape[-1]
         gradients.append(FullyConnectedLayerGradients(db, dW))
