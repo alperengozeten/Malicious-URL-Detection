@@ -11,7 +11,7 @@ df = df.sample(frac = 1)
 # pick only the numeric features
 X = df[['use_of_ip', 'url_length', 'subdomain_length', 'tld_length', 'fld_length', 'path_length',
        'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
-       'count%', 'count?', 'count=', 'count+', 'count#', 'count$', 'count_dirs', 'use_of_shortener', 'first_dir_length',
+       'count%', 'count?', 'count=', 'count_dirs', 'use_of_shortener', 'first_dir_length',
        'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www', 'sus_url']]
 
 print(X.head())
@@ -252,65 +252,119 @@ Bernoulli Model is trained on train + validation and its accuracy is reported
 on the test dataset since it doesn't have any parameters to tune
 """
 start_time = time.time()
-# create a copy of the train and test datasets
-bernoulli_x_train = np.copy(x_train)
-bernoulli_x_test = np.copy(x_test)
+def fit_bernoulli(x_train, x_test, y_train, y_test):
+    # create a copy of the train and test datasets
+    bernoulli_x_train = np.copy(x_train)
+    bernoulli_x_test = np.copy(x_test)
 
-# make nonzero positions 1 for the bernoulli model
-bernoulli_x_train[bernoulli_x_train != 0] = 1
-bernoulli_x_test[bernoulli_x_test != 0] = 1
+    # make nonzero positions 1 for the bernoulli model
+    bernoulli_x_train[bernoulli_x_train != 0] = 1
+    bernoulli_x_test[bernoulli_x_test != 0] = 1
 
-# get the frequencies of the words for spam and normal categories
-bernoulliSpamFrequencies = y_train.T @ bernoulli_x_train
-bernoulliNormalFrequencies = (1 - y_train.T) @ bernoulli_x_train
+    # get the frequencies of the words for spam and normal categories
+    bernoulliSpamFrequencies = y_train.T @ bernoulli_x_train
+    bernoulliNormalFrequencies = (1 - y_train.T) @ bernoulli_x_train
 
-bernoulliSpamProbabilities = bernoulliSpamFrequencies / spam_count
-bernoulliNormalProbabilities = bernoulliNormalFrequencies / normal_count
+    bernoulliSpamProbabilities = bernoulliSpamFrequencies / spam_count
+    bernoulliNormalProbabilities = bernoulliNormalFrequencies / normal_count
 
-print("--- %s seconds ---" % (time.time() - start_time))
-num_correct = tp = tn = fp = fn = 0
-y_pred_berno = []
-for i in range(bernoulli_x_test.shape[0]):
-    row = bernoulli_x_test[i]
-    probSpam = np.log(p_spam)
-    probNormal = np.log(p_normal)
-    
-    # calculate the spam probabilities for each word separately
-    spamWordExists = (bernoulliSpamProbabilities * row)
-    spamWordDoesntExist = ((1 - bernoulliSpamProbabilities) * (1 - row))
-    spamWord = spamWordDoesntExist + spamWordExists
-    with np.errstate(divide='ignore'):
-        spamWord = np.log(spamWord)
-    spamWord[np.isneginf(spamWord)] = -1e+12 # replace 0 with extremely small values  
-    probSpam += np.sum(spamWord, axis=0)
+    print("--- %s seconds ---" % (time.time() - start_time))
+    num_correct = tp = tn = fp = fn = 0
+    y_pred_berno = []
+    for i in range(bernoulli_x_test.shape[0]):
+        row = bernoulli_x_test[i]
+        probSpam = np.log(p_spam)
+        probNormal = np.log(p_normal)
+        
+        # calculate the spam probabilities for each word separately
+        spamWordExists = (bernoulliSpamProbabilities * row)
+        spamWordDoesntExist = ((1 - bernoulliSpamProbabilities) * (1 - row))
+        spamWord = spamWordDoesntExist + spamWordExists
+        with np.errstate(divide='ignore'):
+            spamWord = np.log(spamWord)
+        spamWord[np.isneginf(spamWord)] = -1e+12 # replace 0 with extremely small values  
+        probSpam += np.sum(spamWord, axis=0)
 
-    # calculate the normal probabilities for each word separately
-    normalWordExists = (bernoulliNormalProbabilities * row)
-    normalWordDoesntExist = ((1 - bernoulliNormalProbabilities) * (1 - row))
-    normalWord = normalWordDoesntExist + normalWordExists
-    with np.errstate(divide='ignore'):
-        normalWord = np.log(normalWord)
-    normalWord[np.isneginf(normalWord)] = -1e+12 # replace 0 with extremely small values  
-    probNormal += np.sum(normalWord, axis=0)
+        # calculate the normal probabilities for each word separately
+        normalWordExists = (bernoulliNormalProbabilities * row)
+        normalWordDoesntExist = ((1 - bernoulliNormalProbabilities) * (1 - row))
+        normalWord = normalWordDoesntExist + normalWordExists
+        with np.errstate(divide='ignore'):
+            normalWord = np.log(normalWord)
+        normalWord[np.isneginf(normalWord)] = -1e+12 # replace 0 with extremely small values  
+        probNormal += np.sum(normalWord, axis=0)
 
-    predicted = 0
-    if probSpam > probNormal:
-        predicted = 1
-    
-    y_pred_berno.append(predicted)
-    if predicted == y_test[i]:
-        num_correct += 1
-        if predicted == 1:
-            tp += 1
+        predicted = 0
+        if probSpam > probNormal:
+            predicted = 1
+        
+        y_pred_berno.append(predicted)
+        if predicted == y_test[i]:
+            num_correct += 1
+            if predicted == 1:
+                tp += 1
+            else:
+                tn += 1
         else:
-            tn += 1
-    else:
-        if predicted == 1:
-            fp += 1
-        else:
-            fn += 1
+            if predicted == 1:
+                fp += 1
+            else:
+                fn += 1
+
+    return y_pred_berno, tp, tn, fp, fn
+
+x_train = X.iloc[:train_size].to_numpy()
+x_valid = X.iloc[train_size: train_size + valid_size].to_numpy()
+y_train = y.iloc[:train_size].to_numpy()
+y_valid = y.iloc[train_size: train_size + valid_size].to_numpy()
+
+# get a base accuracy score
+y_pred_berno, tp, tn, fp, fn = fit_bernoulli(x_train, x_valid, y_train, y_valid)
+
+# list of possible features
+featureList = ['+', '#', '//', '$', '!', '*']
+selectedFeatures = []
+X_current = X.copy()
+noIncrease = False
+maxAcc = (tp + tn) / (tp + tn + fp + fn) # initial accuracy
+print(maxAcc)
+
+# Apply forward selection to get the best features
+while not noIncrease:
+    noIncrease = True
+    maxChar = None
+    for c in featureList:
+        if c not in selectedFeatures:
+            X_new = X_current.copy()
+            X_new['count'+c] = df['count'+c]
+            x_train_new = X_new.iloc[:train_size]
+            x_valid_new = X_new.iloc[train_size: train_size + valid_size]
+            y_pred_berno, tp, tn, fp, fn = fit_bernoulli(x_train_new, x_valid_new, y_train, y_valid)
+            acc = (tp + tn) / (tp + tn + fp + fn)
+
+            if acc > maxAcc:
+                maxAcc = acc
+                noIncrease = False
+                maxChar = c
+                print(maxAcc)
+    
+    if maxChar is not None:
+        selectedFeatures.append(maxChar)
+        X_current['count'+maxChar] = df['count'+maxChar]
+        print(maxChar)
+
+print('Selected Set Of Features:' + str(selectedFeatures))
+print(X_current.head())
+
+# The best behaving multinomial model is one with smoothing = 0, report its accuracy again
+# by training on the train + validation set 
+x_train = X_current.iloc[:train_size + valid_size].to_numpy()
+x_test = X_current.iloc[train_size + valid_size:].to_numpy()
+y_train = y.iloc[:train_size + valid_size].to_numpy()
+
+y_pred_berno, tp, tn, fp, fn = fit_bernoulli(x_train, x_test, y_train, y_test)
 print("--------------- Bernoulli Model ---------------")
-print("The number of correct predictions: " + str(num_correct) + ", wrong predictions: " + str(x_test.shape[0] - num_correct) + ", accuracy: " + str(num_correct / x_test.shape[0]))
+print("The number of correct predictions: " + str(num_correct) + ", wrong predictions: " + str(x_test.shape[0] - num_correct) + ", accuracy: " + str((tp + tn) / x_test.shape[0]))
 print("The number of true positives: " + str(tp) + ", true negatives: " + str(tn))
 print("The number of false positives: " + str(fp) + ", false negatives: " + str(fn))
 
