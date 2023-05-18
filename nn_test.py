@@ -76,10 +76,10 @@ def subplot_mse(hist_list, nn_hyperparams, layers):
             axs[i,j].set_title('lr: ' + str(nn_hyperparams[4*i+j][0]) + ', mom: ' + str(nn_hyperparams[4*i+j][1]) + ', bs: ' + str(nn_hyperparams[4*i+j][2]), fontdict={'fontsize': 9})
             axs[i,j].set_xlabel('Epochs')
             axs[i,j].set_ylabel('Accuracy')
-            axs[i,j].plot(hist_list[4 * i + j]['train_MSE'], label='Train Acc')
-            axs[i,j].plot(hist_list[4 * i + j]['test_MSE'], label='Validation Acc')
+            axs[i,j].plot(hist_list[4 * i + j]['train_acc'], label='Train Acc')
+            axs[i,j].plot(hist_list[4 * i + j]['test_acc'], label='Validation Acc')
             axs[i,j].legend(fontsize=5)
-    plt.suptitle('Hyperparameter tuning for NN with layers: ' + str(layers))
+    plt.suptitle('Hyperparameter Tuning For NN With layers: ' + str(layers))
     plt.subplots_adjust(wspace=0.5, hspace=0.5)
     plt.show()
 

@@ -16,7 +16,7 @@ def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 def sigmoid_backward(z):
-    return (np.exp(-z) / ((1 + np.exp(-z)) ** 2))
+    return (1 - sigmoid(z)) * sigmoid(z)
 
 def calc_accuracy(y_true, y_pred):
     y_true = np.asarray(y_true)
@@ -253,19 +253,21 @@ class NeuralNetwork:
             train_avg_losses = {metric: np.mean([loss[metric] for loss in batch_avg_losses])
                                 for metric in DEFAULT_METRICS.keys()}
 
-            acc_log = accuracy_score(y_valid, self.predict(X_valid))
+            valid_acc_log = accuracy_score(y_valid, self.predict(X_valid))
+            train_acc_log = accuracy_score(y, self.predict(X))
+
+            history['train_acc'].append(train_acc_log)
+            history['valid_acc'].append(valid_acc_log)
 
             # log training and validation metrics
-
             for metric in DEFAULT_METRICS.keys():
                 history[f'train_{metric}'].append(train_avg_losses[metric])
                 history[f'valid_{metric}'].append(valid_avg_losses[metric])
 
             progress_bar.set_description_str(f'n_neurons={"-".join([str(i) for i in self.n_neurons])}, '
                                              f'alpha={alpha}, momentum={momentum}, batch_size={batch_size}')
-            progress_bar.set_postfix_str(f'train_mse={train_avg_losses["MSE"]:.7f}, '
-                                         f'valid_mse={valid_avg_losses["MSE"]:.7f}, '
-                                         f'valid_acc={acc_log:.7f}')
+            progress_bar.set_postfix_str(f'train_acc={train_acc_log:.7f}, '
+                                         f'valid_acc={valid_acc_log:.7f}')
 
             # stop the training if there is no improvement in last "tolerance" episodes
             if epoch > 2 and history['valid_MSE'][-2] - history['valid_MSE'][-1] < min_delta:
