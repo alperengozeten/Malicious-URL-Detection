@@ -43,7 +43,7 @@ for c in ".@-%?=":
 
 # extra features that are not directly related 
 # with the structure of a URL
-featureList = ['+', '#', '//', '$', '!', '*']
+featureList = ['+', '#', '/', '$', '!', '*']
 for c in featureList:
     df['count' + c] = df['url'].apply(lambda a: a.count(c))
 

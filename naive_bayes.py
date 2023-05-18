@@ -322,7 +322,7 @@ y_valid = y.iloc[train_size: train_size + valid_size].to_numpy()
 y_pred_berno, tp, tn, fp, fn = fit_bernoulli(x_train, x_valid, y_train, y_valid)
 
 # list of possible features
-featureList = ['+', '#', '//', '$', '!', '*']
+featureList = ['+', '#', '/', '$', '!', '*']
 selectedFeatures = []
 X_current = X.copy()
 noIncrease = False

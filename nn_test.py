@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from nn import NeuralNetwork
 from itertools import product
+from nn import calc_accuracy
 
 df = pd.read_csv("data/url_processed.csv")
 np.random.seed(2023)
@@ -13,10 +14,10 @@ df = df.sample(frac = 1)
 # our feature matrix
 X = df[['use_of_ip', 'url_length', 'subdomain_length', 'tld_length', 'fld_length', 'path_length',
        'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
-       'count%', 'count?', 'count=',
+       'count%', 'count?', 'count=', 'count+', 'count/', 'count#',
        'letters_ratio', 'digit_ratio', 'punc_ratio', 'count_dirs',
        'use_of_shortener', 'first_dir_length',
-       'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www']]
+       'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www', 'sus_url']]
 
 print(X.head())
 
@@ -60,11 +61,11 @@ nn_batch_sizes = [32, 64]
 nn_hyperparams = list(product(nn_alphas, nn_momentums, nn_batch_sizes))
 
 def plot_from_history(history, title):
-    h = pd.DataFrame.from_dict(history)[['train_MSE', 'valid_MSE']]
-    h = h.set_axis(['Train MSE', 'Test MSE'], axis=1)
+    h = pd.DataFrame.from_dict(history)[['train_acc', 'valid_acc']]
+    h = h.set_axis(['Train Acc', 'Test Acc'], axis=1)
     h.plot()
     plt.xlabel('Epochs')
-    plt.ylabel('MSE')
+    plt.ylabel('Accuracy')
     plt.title(title)
     plt.show()
 
@@ -83,6 +84,7 @@ def subplot_mse(hist_list, nn_hyperparams, layers):
     plt.subplots_adjust(wspace=0.5, hspace=0.7)
     plt.show()
 
+'''
 for layers in nn_layers_list:
     hist_list = []
     for alpha, momentum, batch_size in nn_hyperparams:
@@ -90,11 +92,39 @@ for layers in nn_layers_list:
         history = nn.fit(X_train, y_train, X_valid, y_valid, alpha=alpha, batch_size=batch_size, momentum=momentum, epochs=200, patience=5)
         hist_list.append(history)
     subplot_mse(hist_list, nn_hyperparams, layers)
+'''
 
-# train the best model 
+# train the best model on train + validation dataset, report metrics
+# on the test dataset
 X_train = X.iloc[:train_set_size + valid_set_size]
 y_train = y.iloc[:train_set_size + valid_set_size]
 best_model = NeuralNetwork(n_neurons=[64, 64, 1])
-history = best_model.fit(X_train, y_train, X_test, y_test, alpha=0.005, batch_size=32, momentum=0.85,epochs=500, patience=5)
+history = best_model.fit(X_train, y_train, X_test, y_test, alpha=0.005, batch_size=32, momentum=0.85,epochs=5, patience=5)
 
-plot_from_history(history, 'MSE vs Epoch')
+# plot the test and train accuries of the best model
+plot_from_history(history, 'Accuracy vs Epoch For Best Model')
+
+y_test = y_test.to_numpy()
+y_preds = best_model.predict(X_test)
+confusion = pd.crosstab(y_test.reshape((-1,)), y_preds.reshape((-1, )))
+
+# Report the final test accuracy
+print('Final Test Accuracy: %f' % (calc_accuracy(y_test.reshape((-1,)), y_preds.reshape((-1, )))))
+
+# print f1 score = 2 * precision * recall / (precision +  recall)
+precision = confusion[1][1] / (confusion[0][1] + confusion[1][1])
+recall = confusion[1][1] / (confusion[1][1] + confusion[1][0])
+f1_score = (2 * precision * recall) / (precision + recall)
+print("F1 Score For Final Neural Network Model: ", f1_score)
+
+# plot confusion matrix
+fig, ax = plt.subplots()
+ax.matshow(confusion,cmap='OrRd')
+ax.set(xlabel='Test', ylabel='Prediction')
+
+for i in range(2):
+  for j in range(2):
+    c = confusion[j][i]
+    ax.text(i, j, str(c), va='center', ha='center')
+plt.title('Confusion Matrix For Final Neural Network Model')
+plt.show()
