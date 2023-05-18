@@ -14,10 +14,9 @@ df = df.sample(frac = 1)
 # our feature matrix
 X = df[['use_of_ip', 'url_length', 'subdomain_length', 'tld_length', 'fld_length', 'path_length',
        'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
-       'count%', 'count?', 'count=',
-       'letters_ratio', 'digit_ratio', 'punc_ratio', 'count_dirs',
+       'count%', 'count?', 'count+', 'count#', 'count$', 'letters_ratio', 'digit_ratio', 'punc_ratio', 'count_dirs',
        'use_of_shortener', 'first_dir_length',
-       'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www']]
+       'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www', 'sus_url']]
 
 print(X.head())
 

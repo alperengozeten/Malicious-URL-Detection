@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import contains_ip_address, process_url, get_path, check_shortening_service, sub_directory_count, letter_count, digit_count, len_first_directory, check_http
+from utils import contains_ip_address, process_url, get_path, check_shortening_service, sub_directory_count, letter_count, digit_count, len_first_directory, check_http, suspicious_words
 from sklearn.preprocessing import OrdinalEncoder
 
 df = pd.read_csv("data/malicious_phish.csv")
@@ -38,8 +38,16 @@ df['count_puncs'] = (df['url_length'] - (df['count_letters'] + df['count_digits'
 
 # check special character counts for the url
 for c in ".@-%?=":
-    df['count'+c] = df['url'].apply(lambda a: a.count(c))
+    df['count' + c] = df['url'].apply(lambda a: a.count(c))
     # print(df['count'+c][:5])
+
+# extra features that are not directly related 
+# with the structure of a URL
+featureList = ['+', '#', '//', '$', '!', '*']
+for c in featureList:
+    df['count' + c] = df['url'].apply(lambda a: a.count(c))
+
+df['sus_url'] = df['url'].apply(lambda i: suspicious_words(i))
 
 # Binary Label by converting benign to 0 and all other classes to 1
 df['is_malicious'] = df['type'].apply(lambda x: 0 if x == 'benign' else 1)
