@@ -4,7 +4,6 @@ from typing import Any, Type, Tuple, Iterable
 from collections import defaultdict, namedtuple
 from tqdm import tqdm
 from metrics import mse, mae, mape, r2
-from sklearn.metrics import accuracy_score
 
 def relu(z):
     return np.maximum(0, z)
@@ -19,8 +18,8 @@ def sigmoid_backward(z):
     return (1 - sigmoid(z)) * sigmoid(z)
 
 def calc_accuracy(y_true, y_pred):
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
+    y_true = np.asarray(y_true).squeeze()
+    y_pred = np.asarray(y_pred).squeeze()
     return np.mean(y_true == y_pred)
 
 FullyConnectedLayerWeights = namedtuple('FullyConnectedLayerWeights', ['b', 'W'])
@@ -253,8 +252,8 @@ class NeuralNetwork:
             train_avg_losses = {metric: np.mean([loss[metric] for loss in batch_avg_losses])
                                 for metric in DEFAULT_METRICS.keys()}
 
-            valid_acc_log = accuracy_score(y_valid, self.predict(X_valid))
-            train_acc_log = accuracy_score(y, self.predict(X))
+            valid_acc_log = calc_accuracy(y_valid, self.predict(X_valid))
+            train_acc_log = calc_accuracy(y, self.predict(X))
 
             history['train_acc'].append(train_acc_log)
             history['valid_acc'].append(valid_acc_log)
