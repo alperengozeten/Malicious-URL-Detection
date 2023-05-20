@@ -268,7 +268,7 @@ def fit_bernoulli(x_train, x_test, y_train, y_test):
     bernoulliSpamProbabilities = bernoulliSpamFrequencies / spam_count
     bernoulliNormalProbabilities = bernoulliNormalFrequencies / normal_count
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    #print("--- %s seconds ---" % (time.time() - start_time))
     num_correct = tp = tn = fp = fn = 0
     y_pred_berno = []
     for i in range(bernoulli_x_test.shape[0]):
@@ -326,13 +326,17 @@ featureList = ['+', '#', '/', '$', '!', '*', ',', '_', ':']
 selectedFeatures = []
 X_current = X.copy()
 noIncrease = False
+iterationNo = 1
 maxAcc = (tp + tn) / (tp + tn + fp + fn) # initial accuracy
-print(maxAcc)
+print('\n--------------- Bernoulli Model ---------------\nBase Acc: ' + str(maxAcc))
 
 # Apply forward selection to get the best features
 while not noIncrease:
     noIncrease = True
     maxChar = None
+
+    print(f'\n--------------- Iteration {iterationNo} ---------------')
+    iterationNo += 1
     for c in featureList:
         if c not in selectedFeatures:
             X_new = X_current.copy()
@@ -346,12 +350,12 @@ while not noIncrease:
                 maxAcc = acc
                 noIncrease = False
                 maxChar = c
-                print(maxAcc)
+                print('New highest acc: ' + str(maxAcc))
     
     if maxChar is not None:
         selectedFeatures.append(maxChar)
         X_current['count'+maxChar] = df['count'+maxChar]
-        print(maxChar)
+        print('Selected Char: ' + str(maxChar))
 
 print('Selected Set Of Features:' + str(selectedFeatures))
 print(X_current.head())

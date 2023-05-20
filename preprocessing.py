@@ -37,6 +37,7 @@ df['count_digits']= df['url'].apply(lambda i: digit_count(i))
 df['count_puncs'] = (df['url_length'] - (df['count_letters'] + df['count_digits']))
 
 df['is_php'] = df['url'].apply(lambda a: a.count('.php'))
+df['count_%20'] = df['url'].apply(lambda a: a.count('%20')) # usually effects the model in a bad way
 
 # check special character counts for the url
 for c in ".@-%?=":
