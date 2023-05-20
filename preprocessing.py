@@ -50,7 +50,7 @@ featureList = ['+', '#', '/', '$', '!', '*', ',', '_', ':']
 for c in featureList:
     df['count' + c] = df['url'].apply(lambda a: a.count(c))
 
-df['sus_url'] = df['url'].apply(lambda i: suspicious_words(i))
+df['is_susp'] = df['url'].apply(lambda i: suspicious_words(i))
 
 # Binary Label by converting benign to 0 and all other classes to 1
 df['is_malicious'] = df['type'].apply(lambda x: 0 if x == 'benign' else 1)

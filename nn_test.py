@@ -17,7 +17,7 @@ X = df[['use_of_ip', 'url_length', 'subdomain_length', 'tld_length', 'fld_length
        'count%', 'count?', 'count=', 'count+', 'count/', 'count,', 'count!',
        'letters_ratio', 'digit_ratio', 'punc_ratio', 'count_dirs',
        'use_of_shortener', 'first_dir_length',
-       'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www', 'sus_url', 'is_php']]
+       'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www', 'is_susp', 'is_php']]
 
 print(X.head())
 
@@ -94,7 +94,8 @@ for layers in nn_layers_list:
         accList.append(history['valid_acc'])
     subplot_mse(hist_list, nn_hyperparams, layers)
 
-# Get the best parameters
+# Get the best parameters by using the validation accuracy 
+# as the metric
 accList = np.asarray(accList)
 nn_best_index = np.argmax(accList)
 nn_best_layer_index = nn_best_index // len(nn_hyperparams)
