@@ -103,22 +103,16 @@ def check_shortening_service(url: str) -> int:
                       'q\.gs|is\.gd|po\.st|bc\.vc|twitthis\.com|u\.to|j\.mp|buzurl\.com|cutt\.us|u\.bb|yourls\.org|'
                       'x\.co|prettylinkpro\.com|scrnch\.me|filoops\.info|vzturl\.com|qr\.net|1url\.com|tweez\.me|v\.gd|'
                       'tr\.im|link\.zip\.net', url)
-    if check: return 1
-    return 0
+    return 1 if check else 0
 
 """ check whether the URL starts with 'http' or 'https' """
 def check_http(url):
     htp = urlparse(url).scheme
     check = str(htp)
 
-    if check == 'https':
-        return 1
-    return 0
+    return 1 if check == 'https' else 0
 
 def suspicious_words(url):
     match = re.search('PayPal|login|signin|bank|account|update|free|lucky|service|bonus|ebayisapi|webscr',
                       url)
-    if match:
-        return 1
-    else:
-        return 0
+    return 1 if match else 0
