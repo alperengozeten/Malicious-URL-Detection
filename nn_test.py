@@ -94,15 +94,23 @@ for layers in nn_layers_list:
         accList.append(history['valid_acc'])
     subplot_mse(hist_list, nn_hyperparams, layers)
 
+# Get the best parameters
 accList = np.asarray(accList)
 nn_best_index = np.argmax(accList)
 nn_best_layer_index = nn_best_index // len(nn_hyperparams)
-print(nn_best_layer_index)
 nn_best_layer = nn_layers_list[nn_best_layer_index]
 nn_best_params = nn_hyperparams[nn_best_index % len(nn_hyperparams)]
 nn_best_alpha = nn_best_params[0]
 nn_best_momentum = nn_best_params[1]
 nn_best_batchsize = nn_best_params[2]
+
+# Plot the distribution of the accuracies
+plt.figure(dpi=300)
+plt.title('The number of models with a given validation accuracy')
+plt.xlabel('Accuracy of the model')
+plt.ylabel('Number of models')
+plt.hist(accList * 100)
+plt.show()
 
 print(f'\nBest Neural Network Settings: Size={nn_best_layer}, Learning Rate={nn_best_alpha}, Batch Size:{nn_best_batchsize}, Momentum:{nn_best_momentum}')
 
