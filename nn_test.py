@@ -85,6 +85,7 @@ def subplot_mse(hist_list, nn_hyperparams, layers):
     plt.show()
 
 accList = []
+layer_hist_list = []
 for layers in nn_layers_list:
     hist_list = []
     for alpha, momentum, batch_size in nn_hyperparams:
@@ -92,7 +93,10 @@ for layers in nn_layers_list:
         history = nn.fit(X_train, y_train, X_valid, y_valid, alpha=alpha, batch_size=batch_size, momentum=momentum, epochs=1, patience=5)
         hist_list.append(history)
         accList.append(history['valid_acc'])
-    subplot_mse(hist_list, nn_hyperparams, layers)
+    layer_hist_list.append(hist_list)
+
+for i, layers in enumerate(nn_layers_list):
+    subplot_mse(layer_hist_list[i], nn_hyperparams, layers)
 
 # Get the best parameters by using the validation accuracy 
 # as the metric
@@ -106,7 +110,7 @@ nn_best_momentum = nn_best_params[1]
 nn_best_batchsize = nn_best_params[2]
 
 # Plot the distribution of the accuracies
-plt.figure(dpi=300)
+plt.figure()
 plt.title('The number of models with a given validation accuracy')
 plt.xlabel('Accuracy of the model')
 plt.ylabel('Number of models')
