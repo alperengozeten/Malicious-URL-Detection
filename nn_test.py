@@ -89,23 +89,29 @@ for layers in nn_layers_list:
     hist_list = []
     for alpha, momentum, batch_size in nn_hyperparams:
         nn = NeuralNetwork(n_neurons=layers)
-        history = nn.fit(X_train, y_train, X_valid, y_valid, alpha=alpha, batch_size=batch_size, momentum=momentum, epochs=200, patience=5)
+        history = nn.fit(X_train, y_train, X_valid, y_valid, alpha=alpha, batch_size=batch_size, momentum=momentum, epochs=1, patience=5)
         hist_list.append(history)
         accList.append(history['test_acc'])
     subplot_mse(hist_list, nn_hyperparams, layers)
 
 accList = np.asarray(accList)
-nn_best_index = np.argmax(accList)
+nn_best_index = np.argmax(accList, axis=0)
 nn_best_layer_index = nn_best_index // len(nn_hyperparams)
+print(nn_best_layer_index)
 nn_best_layer = nn_layers_list[nn_best_layer_index]
-print(nn_hyperparams[nn_best_index % len(nn_hyperparams)])
+nn_best_params = nn_hyperparams[nn_best_index % len(nn_hyperparams)]
+nn_best_alpha = nn_best_params[0]
+nn_best_momentum = nn_best_params[1]
+nn_best_batchsize = nn_best_params[2]
+
+print(f'\nBest Neural Network Settings: Size={nn_best_layer}, Learning Rate={nn_best_alpha}, Batch Size:{nn_best_batchsize}, Momentum:{nn_best_momentum}')
 
 # train the best model on train + validation dataset, report metrics
 # on the test dataset
 X_train = X.iloc[:train_set_size + valid_set_size]
 y_train = y.iloc[:train_set_size + valid_set_size]
-best_model = NeuralNetwork(n_neurons=[64, 64, 1])
-history = best_model.fit(X_train, y_train, X_test, y_test, alpha=0.005, batch_size=32, momentum=0.85,epochs=5, patience=5)
+best_model = NeuralNetwork(n_neurons=nn_best_layer)
+history = best_model.fit(X_train, y_train, X_test, y_test, alpha=nn_best_alpha, batch_size=nn_best_batchsize, momentum=nn_best_momentum,epochs=500, patience=5)
 
 # plot the test and train accuries of the best model
 plot_from_history(history, 'Accuracy vs Epoch For Best Model')
