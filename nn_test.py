@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from nn import NeuralNetwork
 from itertools import product
 from nn import calc_accuracy
+from os import path
 
 df = pd.read_csv("data/url_processed.csv")
 np.random.seed(2023)
@@ -82,6 +83,7 @@ def subplot_mse(hist_list, nn_hyperparams, layers):
             axs[i,j].legend(fontsize=5)
     plt.suptitle('Hyperparameter Tuning For NN With layers: ' + str(layers))
     plt.subplots_adjust(wspace=0.5, hspace=0.7)
+    plt.savefig(path.join('plots', f'{layers}-validation-plot.jpg'))
     plt.show()
 
 accList = []
