@@ -36,6 +36,8 @@ df['count_letters']= df['url'].apply(lambda i: letter_count(i))
 df['count_digits']= df['url'].apply(lambda i: digit_count(i))
 df['count_puncs'] = (df['url_length'] - (df['count_letters'] + df['count_digits']))
 
+df['is_php'] = df['url'].apply(lambda a: a.count('.php'))
+
 # check special character counts for the url
 for c in ".@-%?=":
     df['count' + c] = df['url'].apply(lambda a: a.count(c))
@@ -43,7 +45,7 @@ for c in ".@-%?=":
 
 # extra features that are not directly related 
 # with the structure of a URL
-featureList = ['+', '#', '/', '$', '!', '*']
+featureList = ['+', '#', '/', '$', '!', '*', ',', '_', ':']
 for c in featureList:
     df['count' + c] = df['url'].apply(lambda a: a.count(c))
 

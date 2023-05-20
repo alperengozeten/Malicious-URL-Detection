@@ -12,7 +12,7 @@ df = df.sample(frac = 1)
 X = df[['use_of_ip', 'url_length', 'subdomain_length', 'tld_length', 'fld_length', 'path_length',
        'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
        'count%', 'count?', 'count=', 'count_dirs', 'use_of_shortener', 'first_dir_length',
-       'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www', 'sus_url']]
+       'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www', 'sus_url', 'is_php']]
 
 print(X.head())
 
@@ -322,7 +322,7 @@ y_valid = y.iloc[train_size: train_size + valid_size].to_numpy()
 y_pred_berno, tp, tn, fp, fn = fit_bernoulli(x_train, x_valid, y_train, y_valid)
 
 # list of possible features
-featureList = ['+', '#', '/', '$', '!', '*']
+featureList = ['+', '#', '/', '$', '!', '*', ',', '_', ':']
 selectedFeatures = []
 X_current = X.copy()
 noIncrease = False

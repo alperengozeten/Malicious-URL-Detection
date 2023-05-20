@@ -113,6 +113,6 @@ def check_http(url):
     return 1 if check == 'https' else 0
 
 def suspicious_words(url):
-    match = re.search('PayPal|login|signin|bank|account|update|free|lucky|service|bonus|ebayisapi|webscr',
-                      url)
+    match = re.search('client|admin|server|cash|PayPal|login|signin|bank|account|update|free|lucky|service|bonus|ebayisapi|sex|webscr', url)
+
     return 1 if match else 0
