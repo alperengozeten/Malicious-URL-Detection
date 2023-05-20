@@ -14,7 +14,7 @@ df = df.sample(frac = 1)
 # our feature matrix
 X = df[['use_of_ip', 'url_length', 'subdomain_length', 'tld_length', 'fld_length', 'path_length',
        'count_letters', 'count_digits', 'count_puncs', 'count.', 'count@', 'count-',
-       'count%', 'count?', 'count=', 'count+', 'count/', 'count#',
+       'count%', 'count?', 'count=', 'count+', 'count/', 'count,', 'count!',
        'letters_ratio', 'digit_ratio', 'punc_ratio', 'count_dirs',
        'use_of_shortener', 'first_dir_length',
        'url_length_q', 'fld_length_q', 'https', 'count-https', 'count-http', 'count-www', 'sus_url']]
@@ -84,15 +84,19 @@ def subplot_mse(hist_list, nn_hyperparams, layers):
     plt.subplots_adjust(wspace=0.5, hspace=0.7)
     plt.show()
 
-'''
+accList = []
 for layers in nn_layers_list:
     hist_list = []
     for alpha, momentum, batch_size in nn_hyperparams:
         nn = NeuralNetwork(n_neurons=layers)
         history = nn.fit(X_train, y_train, X_valid, y_valid, alpha=alpha, batch_size=batch_size, momentum=momentum, epochs=200, patience=5)
         hist_list.append(history)
+        accList.append(history['test_acc'])
     subplot_mse(hist_list, nn_hyperparams, layers)
-'''
+
+accList = np.asarray(accList)
+nn_best_index = np.argmax(accList)
+print(nn_hyperparams[nn_best_index])
 
 # train the best model on train + validation dataset, report metrics
 # on the test dataset
