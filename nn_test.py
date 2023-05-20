@@ -96,7 +96,9 @@ for layers in nn_layers_list:
 
 accList = np.asarray(accList)
 nn_best_index = np.argmax(accList)
-print(nn_hyperparams[nn_best_index])
+nn_best_layer_index = nn_best_index // len(nn_hyperparams)
+nn_best_layer = nn_layers_list[nn_best_layer_index]
+print(nn_hyperparams[nn_best_index % len(nn_hyperparams)])
 
 # train the best model on train + validation dataset, report metrics
 # on the test dataset
