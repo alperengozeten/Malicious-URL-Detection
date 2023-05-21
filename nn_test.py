@@ -92,9 +92,9 @@ for layers in nn_layers_list:
     hist_list = []
     for alpha, momentum, batch_size in nn_hyperparams:
         nn = NeuralNetwork(n_neurons=layers)
-        history = nn.fit(X_train, y_train, X_valid, y_valid, alpha=alpha, batch_size=batch_size, momentum=momentum, epochs=1, patience=5)
+        history = nn.fit(X_train, y_train, X_valid, y_valid, alpha=alpha, batch_size=batch_size, momentum=momentum, epochs=200, patience=5)
         hist_list.append(history)
-        accList.append(history['valid_acc'])
+        accList.append(history['valid_acc'][-1]) # push the last accuracy obtained
     layer_hist_list.append(hist_list)
 
 for i, layers in enumerate(nn_layers_list):
